@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# Git pre-commit hook
+# 在提交前执行代码质量检查
+
+echo "🔍 执行提交前检查..."
+
+# 检查是否有文件被添加到暂存区
+if git diff --cached --quiet; then
+    echo "❌ 没有文件被暂存，无法提交"
+    exit 1
+fi
+
+# 获取暂存的Java文件
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.java$')
+
+if [ -z "$staged_files" ]; then
+    echo "ℹ️ 没有Java文件变更，跳过Java相关检查"
+else
+    echo "📁 检查的Java文件:"
+    echo "$staged_files"
+    echo ""
+
+    # 检查Lombok使用
+    echo "🚫 检查Lombok使用..."
+    lombok_violations=0
+    for file in $staged_files; do
+        if grep -q "import lombok\." "$file" || grep -q "@Data\|@Getter\|@Setter\|@Builder\|@AllArgsConstructor\|@NoArgsConstructor" "$file"; then
+            echo "❌ 发现Lombok使用: $file"
+            lombok_violations=$((lombok_violations + 1))
+        fi
+    done
+
+    if [ $lombok_violations -gt 0 ]; then
+        echo ""
+        echo "❌ 发现 $lombok_violations 个文件使用了Lombok，项目禁止使用Lombok"
+        echo "请手动实现getter、setter、constructor等方法"
+        exit 1
+    fi
+    echo "✅ 未发现Lombok使用"
+
+    # 检查架构层次违规
+    echo ""
+    echo "🏗️ 检查架构层次..."
+    arch_violations=0
+    for file in $staged_files; do
+        # Controller层检查
+        if [[ $file == *"controller"* ]]; then
+            if grep -q "import.*\.mapper\.\|import.*\.dao\." "$file"; then
+                echo "❌ Controller层直接引用Mapper/DAO: $file"
+                arch_violations=$((arch_violations + 1))
+            fi
+        fi
+        
+        # Service层检查
+        if [[ $file == *"service"* ]] && [[ $file != *"impl"* ]]; then
+            if grep -q "import.*\.mapper\.\|import.*\.dao\." "$file"; then
+                echo "❌ Service接口层引用Mapper/DAO: $file"
+                arch_violations=$((arch_violations + 1))
+            fi
+        fi
+        
+        # Repository接口检查
+        if [[ $file == *"repository"* ]] && [[ $file != *"impl"* ]]; then
+            if grep -q "import com.baomidou.mybatisplus" "$file"; then
+                echo "❌ Repository接口暴露MyBatis-Plus类型: $file"
+                arch_violations=$((arch_violations + 1))
+            fi
+        fi
+    done
+
+    if [ $arch_violations -gt 0 ]; then
+        echo ""
+        echo "❌ 发现 $arch_violations 个架构层次违规"
+        echo "请检查四层架构原则: Controller -> Service -> Repository -> Mapper"
+        exit 1
+    fi
+    echo "✅ 架构层次检查通过"
+
+    # 检查代码格式
+    echo ""
+    echo "📏 检查代码格式..."
+    format_violations=0
+    for file in $staged_files; do
+        # 检查行尾空格
+        if grep -q "[[:space:]]$" "$file"; then
+            echo "❌ 发现行尾空格: $file"
+            format_violations=$((format_violations + 1))
+        fi
+        
+        # 检查Tab字符
+        if grep -q $'\t' "$file"; then
+            echo "❌ 发现Tab字符(应使用空格): $file"
+            format_violations=$((format_violations + 1))
+        fi
+    done
+
+    if [ $format_violations -gt 0 ]; then
+        echo ""
+        echo "❌ 发现 $format_violations 个格式问题"
+        echo "请修复代码格式问题后重新提交"
+        exit 1
+    fi
+    echo "✅ 代码格式检查通过"
+fi
+
+# 检查敏感信息
+echo ""
+echo "🔐 检查敏感信息..."
+sensitive_patterns=(
+    "password.*=.*[^*]"
+    "secret.*=.*[^*]"
+    "key.*=.*[^*]"
+    "token.*=.*[^*]"
+    "jdbc:mysql://.*:[0-9]+/"
+)
+
+sensitive_violations=0
+all_staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+for file in $all_staged_files; do
+    for pattern in "${sensitive_patterns[@]}"; do
+        if grep -qi "$pattern" "$file" 2>/dev/null; then
+            echo "❌ 可能包含敏感信息: $file"
+            sensitive_violations=$((sensitive_violations + 1))
+            break
+        fi
+    done
+done
+
+if [ $sensitive_violations -gt 0 ]; then
+    echo ""
+    echo "❌ 发现 $sensitive_violations 个文件可能包含敏感信息"
+    echo "请检查并移除密码、密钥等敏感信息"
+    exit 1
+fi
+echo "✅ 敏感信息检查通过"
+
+# 检查TODO/FIXME注释
+echo ""
+echo "📝 检查TODO/FIXME注释..."
+todo_count=0
+for file in $all_staged_files; do
+    if grep -qi "TODO\|FIXME\|XXX" "$file" 2>/dev/null; then
+        todo_count=$((todo_count + 1))
+    fi
+done
+
+if [ $todo_count -gt 0 ]; then
+    echo "⚠️ 发现 $todo_count 个文件包含TODO/FIXME注释"
+    echo "建议在提交前处理这些待办项"
+fi
+
+echo ""
+echo "✅ 所有检查通过，允许提交!"
+exit 0 

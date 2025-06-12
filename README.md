@@ -300,6 +300,56 @@ biou:
 - **分级存储** - 只将WARN及以上级别的日志存储到数据库
 - **定时清理** - 自动清理过期日志，避免数据量过大
 
+## Git提交规范
+
+本项目严格遵循Git提交规范，确保代码版本控制的规范性和可维护性。
+
+### 🔧 快速配置
+```bash
+# 安装Git钩子和配置环境
+./scripts/setup-git-hooks.sh
+```
+
+### 📝 提交信息格式
+采用 **Conventional Commits** 规范：
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**示例：**
+```bash
+feat(user): 添加用户头像上传功能
+
+- 支持JPG、PNG、GIF格式
+- 限制文件大小为2MB以内
+- 自动压缩和裁剪为标准尺寸
+
+Closes #123
+```
+
+### 🌳 分支管理
+采用 **Git Flow** 工作流：
+- `main` - 生产环境代码
+- `develop` - 开发主分支
+- `feature/*` - 新功能开发
+- `release/*` - 版本发布准备
+- `hotfix/*` - 紧急bug修复
+
+### 📋 提交前检查
+自动检查以下内容：
+- ✅ 提交信息格式规范
+- ✅ 代码质量（禁止Lombok使用）
+- ✅ 架构层次（防止跨层调用）
+- ✅ 代码格式（行尾空格、Tab字符）
+- ✅ 敏感信息检查
+
+### 📚 详细文档
+查看完整的Git规范文档：[docs/GIT_COMMIT_STANDARDS.md](docs/GIT_COMMIT_STANDARDS.md)
+
 ## 项目结构
 
 ```
@@ -394,6 +444,16 @@ src/
 │       ├── static/                 # 静态资源
 │       └── templates/              # 模板文件
 ├── test/                           # 测试目录
+├── docs/                           # 项目文档
+│   ├── GIT_COMMIT_STANDARDS.md    # Git提交规范
+│   ├── CODING_STANDARDS.md        # 编写规范文档
+│   └── FEATURE_EXTENSION_GUIDE.md # 功能扩展指南
+├── hooks/                          # Git钩子脚本
+│   ├── pre-commit                  # 提交前检查脚本
+│   └── commit-msg                  # 提交信息检查脚本
+├── scripts/                        # 工具脚本
+│   └── setup-git-hooks.sh         # Git钩子安装脚本
+├── .gitmessage                     # Git提交信息模板
 └── sql/                            # SQL脚本
     └── init.sql                   # 数据库初始化脚本（包含RBAC表和数据）
 ```
@@ -625,6 +685,7 @@ CREATE TABLE `t_permission` (
 
 本项目包含详细的开发规范和扩展指南：
 
+- **[Git提交规范](docs/GIT_COMMIT_STANDARDS.md)** - Git使用规范、提交信息格式、分支管理
 - **[项目编写规范](docs/CODING_STANDARDS.md)** - 代码规范、架构规范、命名规范
 - **[新功能拓展规范](docs/FEATURE_EXTENSION_GUIDE.md)** - 功能扩展流程、最佳实践
 

@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Git commit-msg hook
+# 验证提交信息是否符合Conventional Commits规范
+
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{1,50}$'
+merge_regex='^Merge .+'
+revert_regex='^Revert .+'
+
+commit_msg_file=$1
+commit_msg=$(head -1 $commit_msg_file)
+
+# 跳过合并提交和回滚提交
+if [[ $commit_msg =~ $merge_regex ]] || [[ $commit_msg =~ $revert_regex ]]; then
+    exit 0
+fi
+
+# 检查提交信息格式
+if [[ ! $commit_msg =~ $commit_regex ]]; then
+    echo "❌ 提交信息格式不符合规范!"
+    echo ""
+    echo "规范格式: <type>(<scope>): <subject>"
+    echo ""
+    echo "类型(type)必须是以下之一:"
+    echo "  feat:     新功能"
+    echo "  fix:      修复bug"
+    echo "  docs:     文档变更"
+    echo "  style:    代码格式修改"
+    echo "  refactor: 代码重构"
+    echo "  perf:     性能优化"
+    echo "  test:     测试相关"
+    echo "  build:    构建系统修改"
+    echo "  ci:       CI配置修改"
+    echo "  chore:    其他修改"
+    echo "  revert:   回滚提交"
+    echo ""
+    echo "示例:"
+    echo "  feat(user): 添加用户注册功能"
+    echo "  fix(auth): 修复登录验证失败问题"
+    echo "  docs(readme): 更新安装说明"
+    echo ""
+    echo "您的提交信息: $commit_msg"
+    echo ""
+    exit 1
+fi
+
+# 检查主题长度
+subject=$(echo "$commit_msg" | sed -E 's/^[^:]+: //')
+if [ ${#subject} -gt 50 ]; then
+    echo "❌ 提交主题过长! 当前长度: ${#subject}，最大长度: 50"
+    echo "主题: $subject"
+    echo ""
+    exit 1
+fi
+
+# 检查是否以句号结尾
+if [[ $subject =~ \.$  ]]; then
+    echo "❌ 提交主题不应以句号结尾!"
+    echo "主题: $subject"
+    echo ""
+    exit 1
+fi
+
+echo "✅ 提交信息格式正确!"
+exit 0 
