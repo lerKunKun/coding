@@ -1,5 +1,6 @@
 package com.biou.dto;
 
+import com.biou.project.dto.PageQueryDTO;
 import java.time.LocalDateTime;
 
 /**
@@ -128,7 +129,7 @@ public class AuditLogQueryDTO extends PageQueryDTO {
                 ", status=" + status +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
-                ", page=" + getPage() +
+                ", current=" + getCurrent() +
                 ", size=" + getSize() +
                 '}';
     }

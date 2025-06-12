@@ -71,6 +71,11 @@ public class SystemLog {
      */
     private LocalDateTime createTime;
 
+    /**
+     * 状态：0-失败，1-成功
+     */
+    private Integer status;
+
     public SystemLog() {
     }
 
@@ -162,6 +167,14 @@ public class SystemLog {
         this.createTime = createTime;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "SystemLog{" +
@@ -176,6 +189,7 @@ public class SystemLog {
                 ", methodName='" + methodName + '\'' +
                 ", lineNumber=" + lineNumber +
                 ", createTime=" + createTime +
+                ", status=" + status +
                 '}';
     }
 } 

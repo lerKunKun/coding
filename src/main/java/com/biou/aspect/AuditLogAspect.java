@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -61,15 +61,15 @@ public class AuditLogAspect {
         String description = auditLog.description();
         
         // 如果没有指定，则尝试从方法名推断
-        if (!StringUtils.hasText(operationType)) {
+        if (!StringUtils.isNotBlank(operationType)) {
             operationType = inferOperationType(joinPoint.getSignature().getName());
         }
         
-        if (!StringUtils.hasText(module)) {
+        if (!StringUtils.isNotBlank(module)) {
             module = joinPoint.getTarget().getClass().getSimpleName();
         }
         
-        if (!StringUtils.hasText(description)) {
+        if (!StringUtils.isNotBlank(description)) {
             description = joinPoint.getSignature().getName();
         }
 
@@ -107,8 +107,17 @@ public class AuditLogAspect {
             Long userId = getCurrentUserId(request);
             String username = getCurrentUsername(request);
             
-            logService.recordOperationLog(userId, username, operationType, businessType, module,
-                                          description, request, startTime, success, errorMessage);
+            String method = request.getMethod();
+            String requestUrl = request.getRequestURI();
+            String requestMethod = request.getMethod();
+            String requestParams = JSON.toJSONString(request.getParameterMap());
+            String responseData = null; // 在环绕通知中可以获取响应数据
+            Integer status = success ? LogConstants.Status.SUCCESS : LogConstants.Status.FAIL;
+            Long executionTime = System.currentTimeMillis() - startTime;
+
+            logService.recordAuditLog(userId, username, operationType, businessType, module,
+                                    description, method, requestUrl, requestMethod, requestParams,
+                                    responseData, request, status, errorMessage, executionTime);
         } catch (Exception e) {
             logger.error("记录审计日志失败", e);
         }
@@ -144,7 +153,7 @@ public class AuditLogAspect {
         // 这里需要根据实际的认证机制来获取用户ID
         // 可以从JWT Token、Session或其他方式获取
         String userIdHeader = request.getHeader("X-User-Id");
-        if (StringUtils.hasText(userIdHeader)) {
+        if (StringUtils.isNotBlank(userIdHeader)) {
             try {
                 return Long.parseLong(userIdHeader);
             } catch (NumberFormatException e) {
@@ -161,7 +170,7 @@ public class AuditLogAspect {
         // 这里需要根据实际的认证机制来获取用户名
         // 可以从JWT Token、Session或其他方式获取
         String usernameHeader = request.getHeader("X-Username");
-        if (StringUtils.hasText(usernameHeader)) {
+        if (StringUtils.isNotBlank(usernameHeader)) {
             return usernameHeader;
         }
         return "anonymous";

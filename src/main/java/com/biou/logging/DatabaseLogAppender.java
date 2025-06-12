@@ -7,7 +7,7 @@ import com.biou.entity.SystemLog;
 import com.biou.service.LogService;
 import com.biou.util.SpringContextUtils;
 import org.slf4j.MDC;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -67,7 +67,7 @@ public class DatabaseLogAppender extends AppenderBase<ILoggingEvent> {
         
         // 链路追踪ID
         String traceId = MDC.get("traceId");
-        if (StringUtils.hasText(traceId)) {
+        if (StringUtils.isNotBlank(traceId)) {
             systemLog.setTraceId(traceId);
         }
         

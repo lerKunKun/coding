@@ -7,6 +7,10 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-}] %logger{50} - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- 只输出INFO及以上级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
 
     <!-- 文件输出 -->
@@ -65,13 +69,25 @@
     </appender>
 
     <!-- MyBatis日志 -->
-    <logger name="com.biou.mapper" level="DEBUG" additivity="false">
+    <logger name="com.biou.mapper" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
 
     <!-- SQL日志 -->
-    <logger name="jdbc.sqltiming" level="DEBUG" additivity="false">
+    <logger name="jdbc.sqltiming" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Spring框架日志 -->
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Druid连接池日志 -->
+    <logger name="com.alibaba.druid" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
@@ -89,7 +105,7 @@
 
     <!-- 根据环境配置不同的日志级别 -->
     <springProfile name="dev">
-        <root level="DEBUG">
+        <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
             <appender-ref ref="ERROR_FILE"/>
@@ -115,7 +131,7 @@
     </springProfile>
 
     <!-- 默认配置 -->
-    <springProfile name="!dev & !test & !prod">
+    <springProfile name="!dev &amp; !test &amp; !prod">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>

@@ -757,3 +757,5 @@ CREATE TABLE `t_permission` (
 ---
 
 ⭐ 如果这个项目对你有帮助，请给它一个星标！ 
+## 许可证
+MIT License

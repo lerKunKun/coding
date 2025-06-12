@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.biou.dto.AuditLogQueryDTO;
 import com.biou.dto.LoginLogQueryDTO;
 import com.biou.dto.SystemLogQueryDTO;
-import com.biou.dto.UserQueryDTO;
+import com.biou.project.dto.UserQueryDTO;
 import com.biou.entity.AuditLog;
 import com.biou.entity.LoginLog;
 import com.biou.entity.SystemLog;
-import com.biou.entity.User;
-import org.springframework.util.StringUtils;
+import com.biou.project.entity.User;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * QueryWrapper工具类
@@ -40,17 +40,17 @@ public class QueryWrapperUtils {
         }
 
         // 用户名条件
-        if (StringUtils.hasText(queryDTO.getUsername())) {
+        if (StringUtils.isNotBlank(queryDTO.getUsername())) {
             wrapper.eq(User::getUsername, queryDTO.getUsername());
         }
 
         // 邮箱条件
-        if (StringUtils.hasText(queryDTO.getEmail())) {
+        if (StringUtils.isNotBlank(queryDTO.getEmail())) {
             wrapper.eq(User::getEmail, queryDTO.getEmail());
         }
 
         // 手机号条件
-        if (StringUtils.hasText(queryDTO.getPhone())) {
+        if (StringUtils.isNotBlank(queryDTO.getPhone())) {
             wrapper.eq(User::getPhone, queryDTO.getPhone());
         }
 
@@ -73,7 +73,7 @@ public class QueryWrapperUtils {
         }
 
         // 排序
-        if (StringUtils.hasText(queryDTO.getOrderBy())) {
+        if (StringUtils.isNotBlank(queryDTO.getOrderBy())) {
             boolean isAsc = !"DESC".equalsIgnoreCase(queryDTO.getOrderDirection());
             
             switch (queryDTO.getOrderBy().toLowerCase()) {
@@ -129,17 +129,17 @@ public class QueryWrapperUtils {
         }
 
         // 用户名条件
-        if (StringUtils.hasText(queryDTO.getUsername())) {
+        if (StringUtils.isNotBlank(queryDTO.getUsername())) {
             wrapper.eq(User::getUsername, queryDTO.getUsername());
         }
 
         // 邮箱条件
-        if (StringUtils.hasText(queryDTO.getEmail())) {
+        if (StringUtils.isNotBlank(queryDTO.getEmail())) {
             wrapper.eq(User::getEmail, queryDTO.getEmail());
         }
 
         // 手机号条件
-        if (StringUtils.hasText(queryDTO.getPhone())) {
+        if (StringUtils.isNotBlank(queryDTO.getPhone())) {
             wrapper.eq(User::getPhone, queryDTO.getPhone());
         }
 
@@ -178,27 +178,27 @@ public class QueryWrapperUtils {
         }
 
         // 操作用户名条件
-        if (StringUtils.hasText(queryDTO.getUsername())) {
+        if (StringUtils.isNotBlank(queryDTO.getUsername())) {
             wrapper.like(AuditLog::getUsername, queryDTO.getUsername());
         }
 
         // 操作类型条件
-        if (StringUtils.hasText(queryDTO.getOperationType())) {
+        if (StringUtils.isNotBlank(queryDTO.getOperationType())) {
             wrapper.eq(AuditLog::getOperationType, queryDTO.getOperationType());
         }
 
         // 业务类型条件
-        if (StringUtils.hasText(queryDTO.getBusinessType())) {
+        if (StringUtils.isNotBlank(queryDTO.getBusinessType())) {
             wrapper.eq(AuditLog::getBusinessType, queryDTO.getBusinessType());
         }
 
         // 操作模块条件
-        if (StringUtils.hasText(queryDTO.getModule())) {
+        if (StringUtils.isNotBlank(queryDTO.getModule())) {
             wrapper.like(AuditLog::getModule, queryDTO.getModule());
         }
 
         // IP地址条件
-        if (StringUtils.hasText(queryDTO.getIpAddress())) {
+        if (StringUtils.isNotBlank(queryDTO.getIpAddress())) {
             wrapper.like(AuditLog::getIpAddress, queryDTO.getIpAddress());
         }
 
@@ -235,27 +235,27 @@ public class QueryWrapperUtils {
         }
 
         // 链路追踪ID条件
-        if (StringUtils.hasText(queryDTO.getTraceId())) {
+        if (StringUtils.isNotBlank(queryDTO.getTraceId())) {
             wrapper.eq(SystemLog::getTraceId, queryDTO.getTraceId());
         }
 
         // 日志级别条件
-        if (StringUtils.hasText(queryDTO.getLevel())) {
+        if (StringUtils.isNotBlank(queryDTO.getLevel())) {
             wrapper.eq(SystemLog::getLevel, queryDTO.getLevel());
         }
 
         // 日志记录器名称条件
-        if (StringUtils.hasText(queryDTO.getLoggerName())) {
+        if (StringUtils.isNotBlank(queryDTO.getLoggerName())) {
             wrapper.like(SystemLog::getLoggerName, queryDTO.getLoggerName());
         }
 
         // 类名条件
-        if (StringUtils.hasText(queryDTO.getClassName())) {
+        if (StringUtils.isNotBlank(queryDTO.getClassName())) {
             wrapper.like(SystemLog::getClassName, queryDTO.getClassName());
         }
 
         // 关键字搜索（在消息和异常信息中搜索）
-        if (StringUtils.hasText(queryDTO.getKeyword())) {
+        if (StringUtils.isNotBlank(queryDTO.getKeyword())) {
             wrapper.and(w -> w.like(SystemLog::getMessage, queryDTO.getKeyword())
                              .or()
                              .like(SystemLog::getException, queryDTO.getKeyword()));
@@ -289,17 +289,17 @@ public class QueryWrapperUtils {
         }
 
         // 用户名条件
-        if (StringUtils.hasText(queryDTO.getUsername())) {
+        if (StringUtils.isNotBlank(queryDTO.getUsername())) {
             wrapper.like(LoginLog::getUsername, queryDTO.getUsername());
         }
 
         // 登录类型条件
-        if (StringUtils.hasText(queryDTO.getLoginType())) {
+        if (StringUtils.isNotBlank(queryDTO.getLoginType())) {
             wrapper.eq(LoginLog::getLoginType, queryDTO.getLoginType());
         }
 
         // IP地址条件
-        if (StringUtils.hasText(queryDTO.getIpAddress())) {
+        if (StringUtils.isNotBlank(queryDTO.getIpAddress())) {
             wrapper.like(LoginLog::getIpAddress, queryDTO.getIpAddress());
         }
 

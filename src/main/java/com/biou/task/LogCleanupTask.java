@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -66,7 +67,7 @@ public class LogCleanupTask {
     @Scheduled(cron = "${biou.log.statistics.cron:0 0 * * * ?}")
     public void logStatistics() {
         try {
-            Map<String, Object> statistics = logService.getLogStatistics(1); // 统计最近1天
+            Map<String, Map<String, Long>> statistics = logService.getLogStatistics(LocalDateTime.now().minusDays(1)); // 统计最近1天
             logger.info("日志统计信息：{}", statistics);
         } catch (Exception e) {
             logger.debug("获取日志统计信息失败", e);
