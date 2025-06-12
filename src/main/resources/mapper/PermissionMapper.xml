@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.biou.project.mapper.PermissionMapper">
+
+    <!-- 根据角色ID查询权限列表 -->
+    <select id="selectPermissionsByRoleId" resultType="com.biou.project.entity.Permission">
+        SELECT p.id, p.permission_code, p.permission_name, p.resource_type, 
+               p.resource_path, p.parent_id, p.sort_order, p.description, 
+               p.status, p.create_time, p.update_time, p.deleted
+        FROM t_permission p
+        INNER JOIN t_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId}
+          AND p.deleted = 0
+          AND p.status = 1
+        ORDER BY p.sort_order ASC, p.create_time DESC
+    </select>
+
+    <!-- 根据用户ID查询权限列表 -->
+    <select id="selectPermissionsByUserId" resultType="com.biou.project.entity.Permission">
+        SELECT DISTINCT p.id, p.permission_code, p.permission_name, p.resource_type, 
+               p.resource_path, p.parent_id, p.sort_order, p.description, 
+               p.status, p.create_time, p.update_time, p.deleted
+        FROM t_permission p
+        INNER JOIN t_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN t_role r ON rp.role_id = r.id
+        INNER JOIN t_user_role ur ON r.id = ur.role_id
+        WHERE ur.user_id = #{userId}
+          AND p.deleted = 0
+          AND p.status = 1
+          AND r.deleted = 0
+          AND r.status = 1
+        ORDER BY p.sort_order ASC, p.create_time DESC
+    </select>
+
+    <!-- 根据权限编码查询权限 -->
+    <select id="selectPermissionByCode" resultType="com.biou.project.entity.Permission">
+        SELECT id, permission_code, permission_name, resource_type, 
+               resource_path, parent_id, sort_order, description, 
+               status, create_time, update_time, deleted
+        FROM t_permission
+        WHERE permission_code = #{permissionCode}
+          AND deleted = 0
+    </select>
+
+    <!-- 根据父权限ID查询子权限列表 -->
+    <select id="selectPermissionsByParentId" resultType="com.biou.project.entity.Permission">
+        SELECT id, permission_code, permission_name, resource_type, 
+               resource_path, parent_id, sort_order, description, 
+               status, create_time, update_time, deleted
+        FROM t_permission
+        WHERE parent_id = #{parentId}
+          AND deleted = 0
+          AND status = 1
+        ORDER BY sort_order ASC, create_time DESC
+    </select>
+
+</mapper> 
