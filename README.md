@@ -1,8 +1,35 @@
 # Biou Project
 
-基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成RBAC权限控制系统
+基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成RBAC权限控制系统和完整的日志管理系统
 
-## 项目架构
+## 项目特色
+
+### 🏗️ 严格的四层架构
+- **Controller → Service → Repository → Mapper** 清晰的层次分离
+- **禁止跨层调用**，保证架构清洁
+- **DTO数据传输**，不暴露ORM实现细节
+
+### 🔐 完整的RBAC权限系统
+- 用户-角色-权限三级模型
+- 支持权限继承和层级结构
+- 预置完整的权限数据和测试用户
+
+### 📝 企业级日志管理
+- 审计日志、系统日志、登录日志三套体系
+- 基于注解的自动日志记录
+- 完整的日志查询和统计功能
+
+### 🚫 零Lombok依赖
+- 手写所有getter/setter/constructor方法
+- 代码可读性更强，调试更容易
+- 避免IDE插件依赖问题
+
+### 📊 规范的错误处理
+- 统一的异常处理机制
+- 标准化的API响应格式
+- 完善的参数校验
+
+## 技术架构
 
 ### 技术栈
 - **Spring Boot 2.7.18** - 主框架
@@ -12,39 +39,66 @@
 - **Druid 1.2.20** - 数据库连接池
 - **FastJSON2 2.0.43** - JSON处理
 
-### 四层架构
+### 四层架构设计
 ```
-├── Controller层 - 控制器层，处理HTTP请求
-├── Service层 - 业务逻辑层，处理业务逻辑
-├── Repository层 - 数据访问层，继承MyBatis-Plus的IService，提供收敛的通用方法
-└── Mapper层 - 数据映射层，继承MyBatis-Plus的BaseMapper
+┌─────────────────┐
+│   Controller层   │  ← HTTP请求处理，参数校验，响应封装
+├─────────────────┤
+│    Service层     │  ← 业务逻辑处理，事务控制，缓存管理
+├─────────────────┤
+│  Repository层    │  ← 数据访问封装，隐藏ORM实现细节
+├─────────────────┤
+│    Mapper层      │  ← 数据库操作，SQL映射
+└─────────────────┘
 ```
 
-### 转换层
-- **Convert层** - 实体转换层，负责DTO、Entity、VO之间的转换
+### 数据传输对象（DTO）体系
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   CreateDTO  │    │  QueryDTO    │    │   UpdateDTO  │
+│   (创建请求)   │    │  (查询条件)   │    │  (更新请求)   │
+└──────┬───────┘    └──────┬───────┘    └──────┬───────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────────────────────────────────────────────┐
+│                   Entity                           │
+│                  (数据实体)                          │
+└─────────────────────┬───────────────────────────────┘
+                      │
+                      ▼
+              ┌──────────────┐
+              │      VO      │
+              │   (响应对象)   │
+              └──────────────┘
+```
 
 ### Repository层设计原则
-Repository层采用收敛设计，提供通用的数据访问方法，不向上层暴露ORM框架的具体实现：
+Repository层采用**收敛设计**，提供标准化的数据访问接口，完全隐藏ORM实现：
 
-**MyBatis-Plus IService 提供的基础方法：**
+**继承MyBatis-Plus IService的基础方法：**
 - `getById()` - 根据ID查询
 - `save()` / `saveBatch()` - 保存
 - `updateById()` - 根据ID更新
 - `removeById()` - 根据ID删除
 
-**自定义扩展方法（使用DTO封装查询条件）：**
+**扩展的通用方法（使用DTO封装）：**
 - `findOne(QueryDTO)` - 根据条件查询单个实体
 - `list(QueryDTO)` - 根据条件查询列表
-- `page(PageQueryDTO, QueryDTO)` - 根据条件分页查询
+- `page(Page, QueryDTO)` - 根据条件分页查询
 - `count(QueryDTO)` - 根据条件统计数量
 - `update(Entity, QueryDTO)` - 根据条件更新
 - `remove(QueryDTO)` - 根据条件删除
 
-**设计优势：**
-- **解耦性**：上层不依赖MyBatis-Plus的Wrapper
-- **抽象性**：通过DTO定义查询条件更清晰
-- **可替换性**：如果将来换ORM框架，上层代码不需要改动
-- **封装性**：Wrapper的组装逻辑封装在Repository层内部
+**核心设计优势：**
+- 🔒 **完全封装**：上层永不接触Wrapper等ORM概念
+- 🎯 **业务导向**：通过DTO表达业务查询需求
+- 🔄 **易于替换**：可无缝切换到其他ORM框架
+- 📋 **标准统一**：所有Repository具有一致的接口
+
+### 转换层架构
+- **Convert层** - 负责DTO、Entity、VO之间的转换
+- **静态方法设计** - 避免Spring Bean管理的复杂性
+- **类型安全** - 编译期保证转换的正确性
 
 ## RBAC权限控制系统
 
@@ -107,46 +161,236 @@ Repository层采用收敛设计，提供通用的数据访问方法，不向上�
 | user3 | 123456 | GUEST | 查看权限 |
 | user4 | 123456 | GUEST | 查看权限 |
 
+## 日志管理系统
+
+### 系统特性
+- **审计日志** - 记录用户操作行为
+- **系统日志存储** - 将应用日志保存到数据库
+- **登录日志** - 记录用户登录/登出行为
+- **日志保留策略** - 自动清理过期日志
+- **日志查询** - 提供丰富的查询条件
+
+### 日志类型
+
+#### 1. 审计日志（t_audit_log）
+记录用户的所有操作行为，包括：
+- 用户信息（用户ID、用户名）
+- 操作信息（操作类型、业务类型、模块、描述）
+- 请求信息（请求方法、URL、参数、响应）
+- 环境信息（IP地址、用户代理、执行时间）
+- 状态信息（成功/失败、错误信息）
+
+**操作类型：**
+- `CREATE` - 创建操作
+- `UPDATE` - 更新操作
+- `DELETE` - 删除操作
+- `QUERY` - 查询操作
+- `LOGIN` - 登录操作
+- `LOGOUT` - 登出操作
+
+**业务类型：**
+- `USER` - 用户管理
+- `ROLE` - 角色管理
+- `PERMISSION` - 权限管理
+- `SYSTEM` - 系统管理
+- `LOG` - 日志管理
+
+#### 2. 系统日志（t_system_log）
+记录应用运行时的日志信息，包括：
+- 日志级别（DEBUG、INFO、WARN、ERROR）
+- 日志消息和异常信息
+- 线程信息和调用位置
+- 链路追踪ID
+- 日志记录器名称
+
+#### 3. 登录日志（t_login_log）
+记录用户登录/登出行为，包括：
+- 用户信息（用户ID、用户名）
+- 登录信息（登录类型、IP地址、地点）
+- 环境信息（浏览器、操作系统、用户代理）
+- 状态信息（成功/失败、提示消息）
+
+### 使用方式
+
+#### 1. 审计日志注解
+使用 `@AuditLog` 注解自动记录操作日志：
+
+```java
+@PostMapping
+@AuditLog(operationType = LogConstants.OperationType.CREATE, 
+          businessType = LogConstants.BusinessType.USER, 
+          module = "用户管理", 
+          description = "创建用户")
+public Result<UserVO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
+    // 业务逻辑
+}
+```
+
+#### 2. 手动记录日志
+通过 LogService 手动记录日志：
+
+```java
+// 记录操作日志
+logService.recordOperationLog(userId, username, operationType, businessType,
+                              module, description, request, startTime, success, errorMessage);
+
+// 记录登录日志
+logService.recordLoginLog(userId, username, loginType, request, success, message);
+```
+
+#### 3. 查询日志
+提供完整的REST API进行日志查询：
+
+```bash
+# 分页查询审计日志
+POST /api/log/audit/page
+
+# 分页查询系统日志
+POST /api/log/system/page
+
+# 分页查询登录日志
+POST /api/log/login/page
+
+# 获取日志统计信息
+GET /api/log/statistics?days=7
+
+# 清理过期日志
+DELETE /api/log/clean?retentionDays=90
+```
+
+### 日志配置
+
+#### 1. 自动清理配置
+```yaml
+biou:
+  log:
+    # 日志保留天数，默认90天
+    retention-days: 90
+    # 自动清理配置
+    auto-cleanup:
+      # 是否启用自动清理，默认启用
+      enabled: true
+      # 清理任务执行时间，默认每天凌晨2点
+      cron: "0 0 2 * * ?"
+```
+
+#### 2. Logback配置
+系统集成了自定义的DatabaseLogAppender，可以将应用日志自动保存到数据库：
+
+```xml
+<!-- 数据库日志存储（仅存储WARN及以上级别的日志） -->
+<appender name="DATABASE" class="com.biou.logging.DatabaseLogAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+    </filter>
+</appender>
+```
+
+### 日志权限
+日志管理相关权限：
+- `SYSTEM:LOG:AUDIT` - 查看审计日志
+- `SYSTEM:LOG:SYSTEM` - 查看系统日志
+- `SYSTEM:LOG:LOGIN` - 查看登录日志
+- `SYSTEM:LOG:CLEAN` - 清理过期日志
+
+### 性能优化
+- **异步写入** - 使用AsyncAppender异步写入数据库日志
+- **批量处理** - 支持批量保存和删除日志
+- **索引优化** - 在关键字段上建立索引
+- **分级存储** - 只将WARN及以上级别的日志存储到数据库
+- **定时清理** - 自动清理过期日志，避免数据量过大
+
 ## 项目结构
 
 ```
 src/
 ├── main/
 │   ├── java/
-│   │   └── com/biou/project/
-│   │       ├── controller/          # 控制器层
-│   │       ├── service/             # 服务层
-│   │       │   └── impl/           # 服务实现层
-│   │       ├── repository/         # 仓储层
-│   │       │   └── impl/           # 仓储实现层
-│   │       ├── mapper/             # 映射器层
-│   │       ├── convert/            # 转换层
-│   │       ├── entity/             # 实体类
-│   │       │   ├── User.java       # 用户实体
-│   │       │   ├── Role.java       # 角色实体
-│   │       │   ├── Permission.java # 权限实体
-│   │       │   ├── UserRole.java   # 用户角色关联
-│   │       │   └── RolePermission.java # 角色权限关联
-│   │       ├── dto/                # 数据传输对象
-│   │       │   ├── UserCreateDTO.java
-│   │       │   ├── RoleCreateDTO.java
-│   │       │   ├── PermissionCreateDTO.java
-│   │       │   └── RolePermissionDTO.java
-│   │       ├── vo/                 # 视图对象
-│   │       │   ├── UserVO.java
-│   │       │   ├── RoleVO.java
-│   │       │   └── PermissionVO.java
-│   │       ├── config/             # 配置类
-│   │       ├── exception/          # 异常处理
-│   │       └── utils/              # 工具类
+│   │   ├── com/biou/project/       # 原有项目包
+│   │   │   ├── controller/         # 控制器层
+│   │   │   ├── service/            # 服务层
+│   │   │   │   └── impl/          # 服务实现层
+│   │   │   ├── repository/        # 仓储层
+│   │   │   │   └── impl/          # 仓储实现层
+│   │   │   ├── mapper/            # 映射器层
+│   │   │   ├── convert/           # 转换层
+│   │   │   ├── entity/            # 实体类
+│   │   │   │   ├── User.java      # 用户实体
+│   │   │   │   ├── Role.java      # 角色实体
+│   │   │   │   ├── Permission.java # 权限实体
+│   │   │   │   ├── UserRole.java  # 用户角色关联
+│   │   │   │   └── RolePermission.java # 角色权限关联
+│   │   │   ├── dto/               # 数据传输对象
+│   │   │   │   ├── UserCreateDTO.java
+│   │   │   │   ├── RoleCreateDTO.java
+│   │   │   │   ├── PermissionCreateDTO.java
+│   │   │   │   └── RolePermissionDTO.java
+│   │   │   ├── vo/                # 视图对象
+│   │   │   │   ├── UserVO.java
+│   │   │   │   ├── RoleVO.java
+│   │   │   │   └── PermissionVO.java
+│   │   │   ├── config/            # 配置类
+│   │   │   ├── exception/         # 异常处理
+│   │   │   └── utils/             # 工具类
+│   │   └── com/biou/              # 日志系统包
+│   │       ├── controller/        # 日志控制器
+│   │       │   └── LogController.java
+│   │       ├── service/           # 日志服务层
+│   │       │   ├── LogService.java
+│   │       │   └── impl/
+│   │       │       └── LogServiceImpl.java
+│   │       ├── repository/        # 日志仓储层
+│   │       │   ├── AuditLogRepository.java
+│   │       │   ├── SystemLogRepository.java
+│   │       │   ├── LoginLogRepository.java
+│   │       │   └── impl/
+│   │       │       ├── AuditLogRepositoryImpl.java
+│   │       │       ├── SystemLogRepositoryImpl.java
+│   │       │       └── LoginLogRepositoryImpl.java
+│   │       ├── mapper/            # 日志映射器
+│   │       │   ├── AuditLogMapper.java
+│   │       │   ├── SystemLogMapper.java
+│   │       │   └── LoginLogMapper.java
+│   │       ├── entity/            # 日志实体类
+│   │       │   ├── AuditLog.java  # 审计日志
+│   │       │   ├── SystemLog.java # 系统日志
+│   │       │   └── LoginLog.java  # 登录日志
+│   │       ├── dto/               # 日志DTO
+│   │       │   ├── AuditLogQueryDTO.java
+│   │       │   ├── SystemLogQueryDTO.java
+│   │       │   └── LoginLogQueryDTO.java
+│   │       ├── vo/                # 日志VO
+│   │       │   ├── AuditLogVO.java
+│   │       │   ├── SystemLogVO.java
+│   │       │   └── LoginLogVO.java
+│   │       ├── convert/           # 日志转换类
+│   │       │   └── LogConvert.java
+│   │       ├── annotation/        # 注解
+│   │       │   └── AuditLog.java  # 审计日志注解
+│   │       ├── aspect/            # AOP切面
+│   │       │   └── AuditLogAspect.java
+│   │       ├── logging/           # 日志组件
+│   │       │   └── DatabaseLogAppender.java
+│   │       ├── task/              # 定时任务
+│   │       │   └── LogCleanupTask.java
+│   │       ├── constant/          # 常量
+│   │       │   └── LogConstants.java
+│   │       └── util/              # 工具类
+│   │           ├── LogUtils.java
+│   │           ├── QueryWrapperUtils.java
+│   │           └── SpringContextUtils.java
 │   └── resources/
 │       ├── mapper/                 # MyBatis XML映射文件
-│       │   ├── UserMapper.xml
-│       │   ├── RoleMapper.xml
-│       │   ├── PermissionMapper.xml
-│       │   ├── UserRoleMapper.xml
-│       │   └── RolePermissionMapper.xml
+│       │   ├── UserMapper.xml      # 用户映射
+│       │   ├── RoleMapper.xml      # 角色映射
+│       │   ├── PermissionMapper.xml # 权限映射
+│       │   ├── UserRoleMapper.xml  # 用户角色关联映射
+│       │   ├── RolePermissionMapper.xml # 角色权限关联映射
+│       │   ├── AuditLogMapper.xml  # 审计日志映射
+│       │   ├── SystemLogMapper.xml # 系统日志映射
+│       │   └── LoginLogMapper.xml  # 登录日志映射
 │       ├── application.yml         # 应用配置
+│       ├── logback-spring.xml      # 日志配置
 │       ├── static/                 # 静态资源
 │       └── templates/              # 模板文件
 ├── test/                           # 测试目录
@@ -363,67 +607,78 @@ CREATE TABLE `t_permission` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 ```
 
-## 监控
+## 🔧 系统监控
 
-### Druid监控
-访问 `http://localhost:8080/api/druid` 查看数据库连接池监控
-- 用户名：admin
-- 密码：123456
+### Druid数据库监控
+- **访问地址**: `http://localhost:8080/api/druid`
+- **用户名**: admin
+- **密码**: 123456
+- **监控内容**: 数据库连接池状态、SQL执行统计、慢SQL分析
 
-## 开发规范
+### 系统日志监控
+- **审计日志**: 记录所有用户操作行为
+- **系统日志**: 记录应用运行状态和错误信息
+- **登录日志**: 记录用户登录/登出情况
+- **日志统计**: 提供丰富的日志分析功能
 
-### 1. 代码规范
-- 禁止使用Lombok
-- 所有类必须有完整的getter/setter方法
-- 必须有构造函数
-- 必须有toString方法
+## 📚 相关文档
 
-### 2. 分层规范
-- **Controller层**：只负责接收请求参数，调用Service层，返回响应结果
-- **Service层**：处理业务逻辑，事务控制，组装查询条件
-- **Repository层**：继承MyBatis-Plus的IService，只提供收敛的通用数据访问方法
-- **Mapper层**：继承MyBatis-Plus的BaseMapper，提供基础的CRUD操作
+本项目包含详细的开发规范和扩展指南：
 
-### 3. 命名规范
-- 类名使用大驼峰命名法
-- 方法名和变量名使用小驼峰命名法
-- 常量使用全大写加下划线
-- 包名使用小写
+- **[项目编写规范](docs/CODING_STANDARDS.md)** - 代码规范、架构规范、命名规范
+- **[新功能拓展规范](docs/FEATURE_EXTENSION_GUIDE.md)** - 功能扩展流程、最佳实践
 
-### 4. 异常处理
-- 使用全局异常处理器统一处理异常
-- 业务异常使用BusinessException
-- 返回统一格式的Result
+## 🏗️ 架构优势
 
-### 5. RBAC权限规范
-- 权限编码采用层级结构，使用冒号分隔，如：`SYSTEM:USER:CREATE`
-- 角色编码采用全大写，如：`ADMIN`、`USER_MANAGER`
-- 权限类型标准化：`menu`、`button`、`api`
-- 权限检查应在Controller层或Service层进行
+### 1. 分层清晰
+- 严格的四层架构，职责分明
+- 禁止跨层调用，保证代码整洁
+- 通过DTO传递数据，隐藏ORM实现
 
-## 扩展开发
+### 2. 扩展性强
+- Repository层使用收敛设计，易于扩展
+- 基于RBAC的权限控制，灵活配置
+- 完整的日志体系，便于监控和审计
 
-### 添加新权限
-1. 在数据库中插入新权限记录
-2. 为相应角色分配权限
-3. 在代码中添加权限检查逻辑
+### 3. 维护性好
+- 零Lombok依赖，代码直观易读
+- 统一的异常处理和响应格式
+- 完善的注释和文档
 
-### 添加新角色
-1. 在数据库中插入新角色记录
-2. 为角色分配相应权限
-3. 为用户分配新角色
+### 4. 生产就绪
+- 企业级的权限控制体系
+- 完整的操作审计功能
+- 规范的错误处理机制
 
-### 自定义权限检查
-可以通过扩展Permission相关的Service层方法来实现复杂的权限检查逻辑。
+## 🤝 参与贡献
 
-## 贡献指南
+欢迎提交 Issue 和 Pull Request 来帮助改进项目。
 
-1. Fork项目
-2. 创建功能分支
-3. 提交更改
-4. 推送到分支
-5. 创建Pull Request
+### 贡献流程
+1. **Fork** 本项目
+2. **创建特性分支** (`git checkout -b feature/AmazingFeature`)
+3. **提交更改** (`git commit -m 'Add some AmazingFeature'`)
+4. **推送到分支** (`git push origin feature/AmazingFeature`)
+5. **提交 Pull Request**
 
-## 许可证
+### 贡献指南
+- 遵循项目的编码规范
+- 添加必要的测试用例
+- 更新相关文档
+- 确保通过所有测试
 
-MIT License 
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 📞 技术支持
+
+如有问题，请通过以下方式联系：
+
+- 🐛 **Bug报告**: [GitHub Issues](https://github.com/your-repo/issues)
+- 💡 **功能建议**: [GitHub Discussions](https://github.com/your-repo/discussions)
+- 📧 **邮件咨询**: your-email@example.com
+
+---
+
+⭐ 如果这个项目对你有帮助，请给它一个星标！ 

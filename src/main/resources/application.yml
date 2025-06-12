@@ -119,7 +119,24 @@ mybatis-plus:
 # 日志配置
 logging:
   level:
+    com.biou.mapper: debug
     com.biou.project.mapper: debug
     druid.sql.Statement: debug
   pattern:
-    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" 
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+
+# 系统日志配置
+biou:
+  log:
+    # 日志保留天数，默认90天
+    retention-days: 90
+    # 自动清理配置
+    auto-cleanup:
+      # 是否启用自动清理，默认启用
+      enabled: true
+      # 清理任务执行时间，默认每天凌晨2点
+      cron: "0 0 2 * * ?"
+    # 统计任务配置
+    statistics:
+      # 统计任务执行时间，默认每小时执行一次
+      cron: "0 0 * * * ?" 

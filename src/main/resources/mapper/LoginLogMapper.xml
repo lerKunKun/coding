@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.biou.mapper.LoginLogMapper">
+
+    <!-- 清理指定日期之前的登录日志 -->
+    <delete id="deleteByLoginTimeBefore">
+        DELETE FROM t_login_log
+        WHERE login_time &lt; #{beforeDate}
+    </delete>
+
+    <!-- 统计指定日期之前的登录日志数量 -->
+    <select id="countByLoginTimeBefore" resultType="long">
+        SELECT COUNT(*)
+        FROM t_login_log
+        WHERE login_time &lt; #{beforeDate}
+    </select>
+
+</mapper> 

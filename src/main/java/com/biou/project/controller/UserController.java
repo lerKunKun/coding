@@ -2,6 +2,8 @@ package com.biou.project.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.biou.annotation.AuditLog;
+import com.biou.constant.LogConstants;
 import com.biou.project.dto.UserCreateDTO;
 import com.biou.project.service.UserService;
 import com.biou.project.vo.Result;
@@ -42,6 +44,10 @@ public class UserController {
      * @return 用户信息
      */
     @PostMapping
+    @AuditLog(operationType = LogConstants.OperationType.CREATE, 
+              businessType = LogConstants.BusinessType.USER, 
+              module = "用户管理", 
+              description = "创建用户")
     public Result<UserVO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
         logger.info("创建用户请求: {}", createDTO);
         UserVO userVO = userService.createUser(createDTO);
@@ -82,6 +88,10 @@ public class UserController {
      * @return 分页结果
      */
     @GetMapping("/page")
+    @AuditLog(operationType = LogConstants.OperationType.QUERY, 
+              businessType = LogConstants.BusinessType.USER, 
+              module = "用户管理", 
+              description = "分页查询用户列表")
     public Result<IPage<UserVO>> getUserPage(
             @RequestParam(defaultValue = "1") @Min(1) Long current,
             @RequestParam(defaultValue = "10") @Min(1) Long size) {
@@ -112,6 +122,10 @@ public class UserController {
      * @return 操作结果
      */
     @PutMapping("/{id}/status")
+    @AuditLog(operationType = LogConstants.OperationType.UPDATE, 
+              businessType = LogConstants.BusinessType.USER, 
+              module = "用户管理", 
+              description = "更新用户状态")
     public Result<Object> updateUserStatus(
             @PathVariable @NotNull @Min(1) Long id,
             @RequestParam @NotNull Integer status) {
@@ -136,6 +150,10 @@ public class UserController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
+    @AuditLog(operationType = LogConstants.OperationType.DELETE, 
+              businessType = LogConstants.BusinessType.USER, 
+              module = "用户管理", 
+              description = "删除用户")
     public Result<Object> deleteUser(@PathVariable @NotNull @Min(1) Long id) {
         logger.info("删除用户: id={}", id);
         boolean success = userService.deleteUser(id);

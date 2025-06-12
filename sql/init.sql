@@ -95,6 +95,84 @@ CREATE TABLE `t_role_permission` (
   CONSTRAINT `fk_role_permission_permission` FOREIGN KEY (`permission_id`) REFERENCES `t_permission` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
+-- 创建审计日志表
+DROP TABLE IF EXISTS `t_audit_log`;
+CREATE TABLE `t_audit_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint(20) DEFAULT NULL COMMENT '操作用户ID',
+  `username` varchar(50) DEFAULT NULL COMMENT '操作用户名',
+  `operation_type` varchar(20) NOT NULL COMMENT '操作类型：CREATE-创建，UPDATE-更新，DELETE-删除，QUERY-查询，LOGIN-登录，LOGOUT-登出',
+  `business_type` varchar(50) NOT NULL COMMENT '业务类型：USER-用户管理，ROLE-角色管理，PERMISSION-权限管理，SYSTEM-系统管理',
+  `module` varchar(50) NOT NULL COMMENT '操作模块',
+  `description` varchar(500) NOT NULL COMMENT '操作描述',
+  `method` varchar(200) DEFAULT NULL COMMENT '请求方法',
+  `request_url` varchar(500) DEFAULT NULL COMMENT '请求URL',
+  `request_method` varchar(10) DEFAULT NULL COMMENT 'HTTP方法',
+  `request_params` text DEFAULT NULL COMMENT '请求参数',
+  `response_data` text DEFAULT NULL COMMENT '响应数据',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT 'IP地址',
+  `user_agent` varchar(1000) DEFAULT NULL COMMENT '用户代理',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '操作状态：0-失败，1-成功',
+  `error_message` varchar(1000) DEFAULT NULL COMMENT '错误信息',
+  `execution_time` bigint(20) DEFAULT NULL COMMENT '执行时间(毫秒)',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_username` (`username`),
+  KEY `idx_operation_type` (`operation_type`),
+  KEY `idx_business_type` (`business_type`),
+  KEY `idx_module` (`module`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_ip_address` (`ip_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
+
+-- 创建系统日志表
+DROP TABLE IF EXISTS `t_system_log`;
+CREATE TABLE `t_system_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `trace_id` varchar(64) DEFAULT NULL COMMENT '链路追踪ID',
+  `level` varchar(10) NOT NULL COMMENT '日志级别：DEBUG,INFO,WARN,ERROR',
+  `logger_name` varchar(200) NOT NULL COMMENT '日志记录器名称',
+  `message` text NOT NULL COMMENT '日志消息',
+  `exception` text DEFAULT NULL COMMENT '异常信息',
+  `thread_name` varchar(100) DEFAULT NULL COMMENT '线程名称',
+  `class_name` varchar(200) DEFAULT NULL COMMENT '类名',
+  `method_name` varchar(100) DEFAULT NULL COMMENT '方法名',
+  `line_number` int(11) DEFAULT NULL COMMENT '行号',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_trace_id` (`trace_id`),
+  KEY `idx_level` (`level`),
+  KEY `idx_logger_name` (`logger_name`),
+  KEY `idx_class_name` (`class_name`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统日志表';
+
+-- 创建登录日志表
+DROP TABLE IF EXISTS `t_login_log`;
+CREATE TABLE `t_login_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint(20) DEFAULT NULL COMMENT '用户ID',
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `login_type` varchar(20) NOT NULL COMMENT '登录类型：LOGIN-登录，LOGOUT-登出',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT 'IP地址',
+  `user_agent` varchar(1000) DEFAULT NULL COMMENT '用户代理',
+  `location` varchar(200) DEFAULT NULL COMMENT '登录地点',
+  `browser` varchar(100) DEFAULT NULL COMMENT '浏览器',
+  `os` varchar(100) DEFAULT NULL COMMENT '操作系统',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '登录状态：0-失败，1-成功',
+  `message` varchar(500) DEFAULT NULL COMMENT '提示消息',
+  `login_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_username` (`username`),
+  KEY `idx_login_type` (`login_type`),
+  KEY `idx_ip_address` (`ip_address`),
+  KEY `idx_status` (`status`),
+  KEY `idx_login_time` (`login_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+
 -- 插入测试数据
 
 -- 插入用户数据
@@ -138,10 +216,17 @@ INSERT INTO `t_permission` (`permission_code`, `permission_name`, `resource_type
 ('SYSTEM:PERMISSION:UPDATE', '更新权限', 'api', '/api/permission/*', 14, 133, '更新权限信息', 1),
 ('SYSTEM:PERMISSION:DELETE', '删除权限', 'api', '/api/permission/*', 14, 134, '删除权限', 1),
 
+-- 日志管理
+('SYSTEM:LOG', '日志管理', 'menu', '/system/log', 1, 140, '日志管理菜单', 1),
+('SYSTEM:LOG:AUDIT', '审计日志', 'api', '/api/log/audit/*', 19, 141, '查看审计日志', 1),
+('SYSTEM:LOG:SYSTEM', '系统日志', 'api', '/api/log/system/*', 19, 142, '查看系统日志', 1),
+('SYSTEM:LOG:LOGIN', '登录日志', 'api', '/api/log/login/*', 19, 143, '查看登录日志', 1),
+('SYSTEM:LOG:CLEAN', '清理日志', 'api', '/api/log/clean', 19, 144, '清理过期日志', 1),
+
 -- 业务模块
 ('BUSINESS', '业务管理', 'menu', '/business', 0, 200, '业务管理模块', 1),
-('BUSINESS:VIEW', '业务查看', 'api', '/api/business/*', 19, 210, '查看业务数据', 1),
-('BUSINESS:OPERATE', '业务操作', 'api', '/api/business/operate/*', 19, 220, '执行业务操作', 1);
+('BUSINESS:VIEW', '业务查看', 'api', '/api/business/*', 23, 210, '查看业务数据', 1),
+('BUSINESS:OPERATE', '业务操作', 'api', '/api/business/operate/*', 23, 220, '执行业务操作', 1);
 
 -- 插入用户角色关联数据
 INSERT INTO `t_user_role` (`user_id`, `role_id`, `create_by`) VALUES
@@ -171,11 +256,11 @@ INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`) VALUES
 (3, 1, 1),   -- SYSTEM
 (3, 2, 1),   -- SYSTEM:USER
 (3, 3, 1),   -- SYSTEM:USER:LIST
-(3, 19, 1),  -- BUSINESS
-(3, 20, 1);  -- BUSINESS:VIEW
+(3, 23, 1),  -- BUSINESS
+(3, 24, 1);  -- BUSINESS:VIEW
 
 -- OPERATOR 角色有业务操作权限
 INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`) VALUES
-(4, 19, 1),  -- BUSINESS
-(4, 20, 1),  -- BUSINESS:VIEW
-(4, 21, 1);  -- BUSINESS:OPERATE
+(4, 23, 1),  -- BUSINESS
+(4, 24, 1),  -- BUSINESS:VIEW
+(4, 25, 1);  -- BUSINESS:OPERATE
