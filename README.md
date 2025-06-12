@@ -305,9 +305,20 @@ biou:
 本项目严格遵循Git提交规范，确保代码版本控制的规范性和可维护性。
 
 ### 🔧 快速配置
+
+**Unix/Linux/MacOS:**
 ```bash
 # 安装Git钩子和配置环境
 ./scripts/setup-git-hooks.sh
+```
+
+**Windows:**
+```cmd
+# 方案1: 使用Git Bash（推荐）
+./scripts/setup-git-hooks.sh
+
+# 方案2: 使用Windows批处理
+scripts\setup-git-hooks.bat
 ```
 
 ### 📝 提交信息格式
@@ -449,10 +460,13 @@ src/
 │   ├── CODING_STANDARDS.md        # 编写规范文档
 │   └── FEATURE_EXTENSION_GUIDE.md # 功能扩展指南
 ├── hooks/                          # Git钩子脚本
-│   ├── pre-commit                  # 提交前检查脚本
-│   └── commit-msg                  # 提交信息检查脚本
+│   ├── pre-commit                  # 提交前检查脚本(Unix/Linux/Mac)
+│   ├── pre-commit.bat              # 提交前检查脚本(Windows)
+│   ├── commit-msg                  # 提交信息检查脚本(Unix/Linux/Mac)
+│   └── commit-msg.bat              # 提交信息检查脚本(Windows)
 ├── scripts/                        # 工具脚本
-│   └── setup-git-hooks.sh         # Git钩子安装脚本
+│   ├── setup-git-hooks.sh         # Git钩子安装脚本(Unix/Linux/Mac)
+│   └── setup-git-hooks.bat        # Git钩子安装脚本(Windows)
 ├── .gitmessage                     # Git提交信息模板
 └── sql/                            # SQL脚本
     └── init.sql                   # 数据库初始化脚本（包含RBAC表和数据）

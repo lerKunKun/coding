@@ -622,6 +622,57 @@ git push origin --tags
 - [ ] 文件权限设置正确
 - [ ] .gitignore配置合理
 
+## 💻 Windows支持
+
+### Windows环境配置
+
+本项目完全支持Windows开发环境，提供了多种安装方式：
+
+#### 方案1：使用Git Bash（推荐）
+```bash
+# 1. 安装Git for Windows (包含Git Bash)
+# 下载地址：https://git-scm.com/download/win
+
+# 2. 右键项目文件夹 → Git Bash Here
+# 3. 运行安装脚本
+./scripts/setup-git-hooks.sh
+```
+
+#### 方案2：使用Windows批处理
+```cmd
+# 在Windows命令提示符或PowerShell中运行
+scripts\setup-git-hooks.bat
+```
+
+#### 方案3：手动安装
+```cmd
+# 复制钩子文件
+copy hooks\pre-commit .git\hooks\
+copy hooks\commit-msg .git\hooks\
+
+# 或者使用批处理版本
+copy hooks\pre-commit.bat .git\hooks\pre-commit.bat
+copy hooks\commit-msg.bat .git\hooks\commit-msg.bat
+```
+
+### Windows特有配置
+```bash
+# 设置换行符转换（Windows推荐）
+git config core.autocrlf true
+
+# 解决中文乱码问题
+git config core.quotepath false
+chcp 65001  # 设置UTF-8编码
+
+# 长路径支持
+git config core.longpaths true
+```
+
+### Windows钩子执行
+- **Git Bash**: 执行原始的bash脚本 (hooks/pre-commit, hooks/commit-msg)
+- **Windows命令行**: 执行批处理版本 (hooks/pre-commit.bat, hooks/commit-msg.bat)
+- **IDEA等IDE**: 自动选择合适的执行方式
+
 ## 📝 Git配置建议
 
 ### 6.1 全局配置
