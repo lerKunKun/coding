@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 用户转换类
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class UserConvert {

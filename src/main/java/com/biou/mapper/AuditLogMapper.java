@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 审计日志Mapper接口
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @Mapper

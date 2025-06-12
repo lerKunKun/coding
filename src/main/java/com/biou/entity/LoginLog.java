@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * 登录日志实体
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @TableName("t_login_log")

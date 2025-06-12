@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * Spring上下文工具类
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @Component

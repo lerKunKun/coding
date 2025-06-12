@@ -19,7 +19,7 @@ import java.time.ZoneId;
  * 数据库日志Appender
  * 将应用日志保存到数据库
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class DatabaseLogAppender extends AppenderBase<ILoggingEvent> {

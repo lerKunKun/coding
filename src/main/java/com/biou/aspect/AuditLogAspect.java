@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 审计日志AOP切面
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @Aspect

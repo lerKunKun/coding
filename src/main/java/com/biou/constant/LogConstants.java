@@ -3,7 +3,7 @@ package com.biou.constant;
 /**
  * 日志常量
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class LogConstants {

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  * 用户查询DTO
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class UserQueryDTO implements Serializable {

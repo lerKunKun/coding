@@ -18,7 +18,7 @@ import java.nio.charset.Charset;
 /**
  * Redis配置类
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 @Configuration

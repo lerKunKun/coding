@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * 审计日志查询DTO
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class AuditLogQueryDTO extends PageQueryDTO {

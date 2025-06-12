@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 /**
  * 权限创建DTO
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class PermissionCreateDTO {

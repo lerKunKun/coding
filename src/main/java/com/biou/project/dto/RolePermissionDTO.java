@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 角色权限分配DTO
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class RolePermissionDTO {

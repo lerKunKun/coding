@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 全局异常处理器
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 @RestControllerAdvice

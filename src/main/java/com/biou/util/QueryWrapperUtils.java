@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
  * QueryWrapper工具类
  * 负责将DTO转换为MyBatis-Plus的QueryWrapper
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class QueryWrapperUtils {

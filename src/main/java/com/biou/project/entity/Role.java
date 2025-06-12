@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * 角色实体类
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 @TableName("t_role")

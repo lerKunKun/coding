@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * 日志管理控制器
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @RestController

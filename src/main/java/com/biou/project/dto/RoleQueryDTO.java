@@ -3,7 +3,7 @@ package com.biou.project.dto;
 /**
  * 角色查询DTO
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class RoleQueryDTO {

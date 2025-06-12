@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 审计日志注解
  * 用于标记需要记录审计日志的方法
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @Target(ElementType.METHOD)

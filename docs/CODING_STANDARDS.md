@@ -186,7 +186,7 @@ private Page<User> userPage;               // 分页变量
  * - 更新用户
  * - 删除用户
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @RestController
@@ -955,7 +955,7 @@ class UserControllerIntegrationTest {
  * 
  * 提供用户相关的增删改查接口
  * 
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @RestController

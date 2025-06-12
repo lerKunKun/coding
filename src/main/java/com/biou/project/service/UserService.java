@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 用户Service接口
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public interface UserService {

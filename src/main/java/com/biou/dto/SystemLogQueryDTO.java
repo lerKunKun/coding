@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * 系统日志查询DTO
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class SystemLogQueryDTO extends PageQueryDTO {

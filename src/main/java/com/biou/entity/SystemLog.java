@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * 系统日志实体
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @TableName("t_system_log")

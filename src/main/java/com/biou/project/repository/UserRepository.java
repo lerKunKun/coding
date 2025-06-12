@@ -20,7 +20,7 @@ import java.util.List;
  * 
  * 自定义方法使用DTO封装查询条件，不向上层暴露ORM框架的具体实现
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public interface UserRepository extends IService<User> {

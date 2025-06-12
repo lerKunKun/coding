@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 分页查询DTO
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class PageQueryDTO implements Serializable {

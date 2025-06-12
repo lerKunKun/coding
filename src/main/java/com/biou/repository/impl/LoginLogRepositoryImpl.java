@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 /**
  * 登录日志Repository实现类
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 @Repository

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 日志转换类
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class LogConvert {

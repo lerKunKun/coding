@@ -3,7 +3,7 @@ package com.biou.project.exception;
 /**
  * 业务异常类
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 public class BusinessException extends RuntimeException {

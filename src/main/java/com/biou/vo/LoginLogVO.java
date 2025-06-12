@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * 登录日志VO
  *
- * @author biou
+ * @author Jax
  * @since 2025-01-07
  */
 public class LoginLogVO {
