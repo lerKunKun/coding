@@ -738,7 +738,7 @@ CREATE TABLE `t_permission` (
 
 - 🐛 **Bug报告**: [GitHub Issues](https://github.com/your-repo/issues)
 - 💡 **功能建议**: [GitHub Discussions](https://github.com/your-repo/discussions)
-- 📧 **邮件咨询**: your-email@example.com
+- 📧 **邮件咨询**: zhurunfeng3226@gmail.com
 
 ---
 

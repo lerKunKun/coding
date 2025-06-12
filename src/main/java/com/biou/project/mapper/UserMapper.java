@@ -19,7 +19,7 @@ import org.apache.ibatis.annotations.Mapper;
  * - delete(Wrapper<T> queryWrapper) - 根据条件删除
  * - selectCount(Wrapper<T> queryWrapper) - 根据条件统计
  *
- * @author biou
+ * @author Jax
  * @since 2024-01-01
  */
 @Mapper
