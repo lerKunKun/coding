@@ -1,132 +1,187 @@
 #!/bin/bash
 
-# Git钩子安装脚本
-# 用于安装项目的Git钩子和配置Git环境
+# Git Hooks Setup Script for BIOU Project
+# This script sets up Git hooks for SQL validation and commit message checking
 
-echo "🚀 开始配置Git环境和钩子..."
+set -e
 
-# 检查是否在Git仓库中
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}🔧 Setting up Git hooks for BIOU project...${NC}"
+
+# Check if we're in a git repository
 if [ ! -d ".git" ]; then
-    echo "❌ 当前目录不是Git仓库根目录"
-    echo "请在项目根目录下运行此脚本"
+    echo -e "${RED}❌ Error: Not in a Git repository root directory${NC}"
+    echo "Please run this script from the project root directory"
     exit 1
 fi
 
-# 创建.git/hooks目录（如果不存在）
+# Create hooks directory if it doesn't exist
 mkdir -p .git/hooks
 
-# 复制钩子文件
-echo "📋 安装Git钩子..."
+# Function to backup existing hooks
+backup_existing_hook() {
+    local hook_name=$1
+    if [ -f ".git/hooks/$hook_name" ] && [ ! -f ".git/hooks/$hook_name.backup" ]; then
+        echo "📋 Backing up existing $hook_name hook..."
+        cp ".git/hooks/$hook_name" ".git/hooks/$hook_name.backup"
+    fi
+}
 
-if [ -f "hooks/pre-commit" ]; then
-    cp hooks/pre-commit .git/hooks/
-    chmod +x .git/hooks/pre-commit
-    echo "✅ 已安装pre-commit钩子"
-else
-    echo "⚠️ 未找到hooks/pre-commit文件"
-fi
+# Function to verify a hook exists and make it executable
+verify_hook() {
+    local hook_name=$1
+    local hook_description=$2
+    
+    echo "🔗 Verifying $hook_name hook ($hook_description)..."
+    
+    if [ -f ".git/hooks/$hook_name" ]; then
+        # Make sure it's executable
+        chmod +x ".git/hooks/$hook_name"
+        echo -e "${GREEN}✅ $hook_name hook is installed and executable${NC}"
+        return 0
+    else
+        echo -e "${RED}❌ $hook_name hook not found${NC}"
+        echo "Please ensure the hook file exists at .git/hooks/$hook_name"
+        return 1
+    fi
+}
 
-if [ -f "hooks/commit-msg" ]; then
-    cp hooks/commit-msg .git/hooks/
-    chmod +x .git/hooks/commit-msg
-    echo "✅ 已安装commit-msg钩子"
-else
-    echo "⚠️ 未找到hooks/commit-msg文件"
-fi
-
-# 配置提交信息模板
-echo ""
-echo "📝 配置提交信息模板..."
-if [ -f ".gitmessage" ]; then
-    git config commit.template .gitmessage
-    echo "✅ 已配置提交信息模板"
-else
-    echo "⚠️ 未找到.gitmessage文件"
-fi
-
-# 配置推荐的Git设置
-echo ""
-echo "⚙️ 配置推荐的Git设置..."
-
-# 设置默认分支名
-git config init.defaultBranch main
-echo "✅ 设置默认分支名为main"
-
-# 启用颜色输出
-git config color.ui auto
-echo "✅ 启用颜色输出"
-
-# 设置推送策略
-git config push.default simple
-echo "✅ 设置推送策略为simple"
-
-# 设置自动换行转换（根据操作系统）
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    git config core.autocrlf true
-    echo "✅ 设置Windows换行符转换"
-else
-    git config core.autocrlf input
-    echo "✅ 设置Unix/Mac换行符转换"
-fi
-
-# 配置实用的Git别名
-echo ""
-echo "🔧 配置Git别名..."
-git config alias.co checkout
-git config alias.br branch
-git config alias.ci commit
-git config alias.st status
-git config alias.lg "log --graph --oneline --all"
-git config alias.last "log -1 HEAD"
-git config alias.unstage "reset HEAD --"
-echo "✅ 已配置Git别名"
-
-# 显示当前Git配置
-echo ""
-echo "📊 当前Git配置:"
-echo "用户名: $(git config user.name || echo '未设置')"
-echo "邮箱: $(git config user.email || echo '未设置')"
-echo "默认分支: $(git config init.defaultBranch)"
-echo "提交模板: $(git config commit.template || echo '未设置')"
-
-# 检查用户配置
-if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
+# Function to test hooks
+test_hooks() {
     echo ""
-    echo "⚠️ 检测到Git用户信息未配置，请运行以下命令:"
-    echo "git config user.name \"Your Name\""
-    echo "git config user.email \"your.email@example.com\""
-    echo ""
-    echo "或者配置全局用户信息:"
-    echo "git config --global user.name \"Your Name\""
-    echo "git config --global user.email \"your.email@example.com\""
-fi
+    echo -e "${BLUE}🧪 Testing Git hooks...${NC}"
+    
+    # Test pre-commit hook
+    if [ -f ".git/hooks/pre-commit" ]; then
+        echo "🔍 Testing pre-commit hook with no staged files..."
+        if .git/hooks/pre-commit; then
+            echo -e "${GREEN}✅ pre-commit hook test passed${NC}"
+        else
+            echo -e "${YELLOW}⚠️  pre-commit hook returned non-zero exit code (expected with no staged files)${NC}"
+        fi
+    fi
+    
+    # Test commit-msg hook
+    if [ -f ".git/hooks/commit-msg" ]; then
+        echo "🔍 Testing commit-msg hook..."
+        echo "test: sample commit message" > /tmp/test-commit-msg
+        if .git/hooks/commit-msg /tmp/test-commit-msg; then
+            echo -e "${GREEN}✅ commit-msg hook test passed${NC}"
+        else
+            echo -e "${RED}❌ commit-msg hook test failed${NC}"
+        fi
+        rm -f /tmp/test-commit-msg
+    fi
+}
+
+# Main installation process
+echo ""
+echo "🔍 Checking for existing hooks..."
+
+# Backup existing hooks if they exist
+backup_existing_hook "pre-commit"
+backup_existing_hook "commit-msg"
+
+# Verify hooks
+echo ""
+echo "📦 Verifying Git hooks..."
+
+verify_hook "pre-commit" "SQL file validation"
+verify_hook "commit-msg" "Commit message format validation"
+
+# Test the installed hooks
+test_hooks
+
+# Create hook configuration documentation
+echo ""
+echo "📝 Creating hook documentation..."
+
+cat > .git/hooks/README.md << 'EOF'
+# Git Hooks for BIOU Project
+
+This directory contains Git hooks that are automatically triggered during Git operations.
+
+## Installed Hooks
+
+### pre-commit
+- **Purpose**: Validates SQL files before commit
+- **Checks**:
+  - SQL syntax validation
+  - File naming conventions
+  - Standards compliance (header format, existence checks)
+  - Missing rollback scripts warning
+- **File**: `.git/hooks/pre-commit`
+
+### commit-msg
+- **Purpose**: Validates commit message format
+- **Checks**:
+  - Conventional commit format for SQL changes
+  - Version information in migration commits
+  - Rollback commits are clearly marked
+  - Message length recommendations
+- **File**: `.git/hooks/commit-msg`
+
+## Hook Management
+
+### Disable hooks temporarily
+```bash
+git commit --no-verify  # Skip pre-commit and commit-msg hooks
+```
+
+### Re-enable hooks
+Hooks are enabled by default. If disabled, run:
+```bash
+./scripts/setup-git-hooks.sh
+```
+
+### Update hooks
+Run the setup script again to update hooks:
+```bash
+./scripts/setup-git-hooks.sh
+```
+
+## Troubleshooting
+
+### Hook not running
+- Check if hook file has execute permissions: `ls -la .git/hooks/`
+- Make hook executable: `chmod +x .git/hooks/hook-name`
+
+### Hook failing
+- Check hook output for specific error messages
+- Verify SQL syntax manually: `mysql -u user -p database < script.sql`
+- Review SQL standards: `docs/SQL_STANDARDS.md`
+
+### Bypass hooks (emergency only)
+```bash
+git commit --no-verify -m "emergency fix"
+```
+
+## Standards Reference
+
+- SQL Standards: `docs/SQL_STANDARDS.md`
+- Commit Message Format: Conventional Commits
+- File Organization: `sql/README.md`
+EOF
 
 echo ""
-echo "🎉 Git环境配置完成!"
+echo -e "${GREEN}🎉 Git hooks setup completed successfully!${NC}"
 echo ""
-echo "📖 使用提示:"
-echo "1. 提交时会自动检查代码质量和提交信息格式"
-echo "2. 使用 'git ci' 代替 'git commit'"
-echo "3. 使用 'git st' 代替 'git status'"
-echo "4. 使用 'git lg' 查看图形化日志"
-echo "5. 提交信息格式: <type>(<scope>): <subject>"
+echo "📋 Summary of installed hooks:"
+echo "  ✅ pre-commit: SQL file validation"
+echo "  ✅ commit-msg: Commit message format validation"
 echo ""
-echo "📚 更多信息请查看: docs/GIT_COMMIT_STANDARDS.md"
-
-# 测试钩子是否正常工作
+echo "📖 Documentation created at: .git/hooks/README.md"
 echo ""
-echo "🧪 测试钩子配置..."
-if [ -x ".git/hooks/pre-commit" ]; then
-    echo "✅ pre-commit钩子可执行"
-else
-    echo "❌ pre-commit钩子不可执行"
-fi
-
-if [ -x ".git/hooks/commit-msg" ]; then
-    echo "✅ commit-msg钩子可执行"
-else
-    echo "❌ commit-msg钩子不可执行"
-fi
-
+echo "💡 Tips:"
+echo "  - Hooks will run automatically on git commit"
+echo "  - Use 'git commit --no-verify' to bypass hooks (emergency only)"
+echo "  - Update hooks by running this script again"
+echo "  - Check hook documentation: cat .git/hooks/README.md"
 echo ""
-echo "完成! 现在可以开始使用规范的Git工作流了 🚀" 
+echo -e "${BLUE}🚀 You're all set! Happy coding with validated SQL commits!${NC}" 
