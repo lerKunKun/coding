@@ -1,13 +1,16 @@
 package com.biou.project.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.biou.project.convert.UserConvert;
 import com.biou.project.dto.PageQueryDTO;
 import com.biou.project.dto.UserCreateDTO;
 import com.biou.project.dto.UserQueryDTO;
 import com.biou.project.entity.User;
 import com.biou.project.exception.BusinessException;
+import com.biou.project.mapper.UserMapper;
 import com.biou.project.repository.UserRepository;
 import com.biou.project.service.UserService;
 import com.biou.project.vo.UserVO;
@@ -15,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -39,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private static final String USER_CACHE_KEY = "user:";
     private static final long CACHE_EXPIRE_TIME = 30;
@@ -64,6 +72,9 @@ public class UserServiceImpl implements UserService {
 
         // 转换DTO为Entity
         User user = UserConvert.dtoToEntity(createDTO);
+        
+        // 加密密码
+        user.setPassword(encodePassword(createDTO.getPassword()));
 
         // 保存用户
         boolean saved = userRepository.save(user);
@@ -239,5 +250,47 @@ public class UserServiceImpl implements UserService {
         queryDTO.setPhone(phone);
         queryDTO.setDeleted(0);
         return userRepository.count(queryDTO) > 0;
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        if (!StringUtils.hasText(username)) {
+            return null;
+        }
+        
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, username)
+                    .eq(User::getDeleted, 0);
+        
+        return baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public User findByDingtalkUnionId(String unionId) {
+        if (!StringUtils.hasText(unionId)) {
+            return null;
+        }
+        
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getDingtalkUnionId, unionId)
+                    .eq(User::getDeleted, 0);
+        
+        return baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public String encodePassword(String rawPassword) {
+        if (!StringUtils.hasText(rawPassword)) {
+            throw new BusinessException("密码不能为空");
+        }
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    @Override
+    public boolean matches(String rawPassword, String encodedPassword) {
+        if (!StringUtils.hasText(rawPassword) || !StringUtils.hasText(encodedPassword)) {
+            return false;
+        }
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 } 

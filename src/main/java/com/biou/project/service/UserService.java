@@ -2,7 +2,9 @@ package com.biou.project.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.biou.project.dto.UserCreateDTO;
+import com.biou.project.entity.User;
 import com.biou.project.vo.UserVO;
 
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
  * @author Jax
  * @since 2024-01-01
  */
-public interface UserService {
+public interface UserService extends IService<User> {
 
     /**
      * 创建用户
@@ -101,4 +103,37 @@ public interface UserService {
      * @return 是否存在
      */
     boolean checkPhoneExists(String phone);
+
+    /**
+     * 根据用户名查询用户实体
+     *
+     * @param username 用户名
+     * @return 用户实体
+     */
+    User findByUsername(String username);
+
+    /**
+     * 根据钉钉UnionId查询用户
+     *
+     * @param unionId 钉钉UnionId
+     * @return 用户实体
+     */
+    User findByDingtalkUnionId(String unionId);
+
+    /**
+     * 加密用户密码
+     *
+     * @param rawPassword 明文密码
+     * @return 加密后的密码
+     */
+    String encodePassword(String rawPassword);
+
+    /**
+     * 验证密码是否匹配
+     *
+     * @param rawPassword 明文密码
+     * @param encodedPassword 加密密码
+     * @return 是否匹配
+     */
+    boolean matches(String rawPassword, String encodedPassword);
 } 
