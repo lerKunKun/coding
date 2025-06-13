@@ -68,6 +68,36 @@ public class User implements Serializable {
     private LocalDateTime updateTime;
 
     /**
+     * 真实姓名
+     */
+    @TableField("real_name")
+    private String realName;
+
+    /**
+     * 钉钉用户ID
+     */
+    @TableField("dingtalk_user_id")
+    private String dingtalkUserId;
+
+    /**
+     * 钉钉用户唯一标识
+     */
+    @TableField("dingtalk_union_id")
+    private String dingtalkUnionId;
+
+    /**
+     * 最后登录时间
+     */
+    @TableField("last_login_time")
+    private LocalDateTime lastLoginTime;
+
+    /**
+     * 最后登录IP
+     */
+    @TableField("last_login_ip")
+    private String lastLoginIp;
+
+    /**
      * 逻辑删除：0-未删除，1-已删除
      */
     @TableField("deleted")
@@ -157,6 +187,46 @@ public class User implements Serializable {
 
     public void setDeleted(Integer deleted) {
         this.deleted = deleted;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public String getDingtalkUserId() {
+        return dingtalkUserId;
+    }
+
+    public void setDingtalkUserId(String dingtalkUserId) {
+        this.dingtalkUserId = dingtalkUserId;
+    }
+
+    public String getDingtalkUnionId() {
+        return dingtalkUnionId;
+    }
+
+    public void setDingtalkUnionId(String dingtalkUnionId) {
+        this.dingtalkUnionId = dingtalkUnionId;
+    }
+
+    public LocalDateTime getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(LocalDateTime lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public String getLastLoginIp() {
+        return lastLoginIp;
+    }
+
+    public void setLastLoginIp(String lastLoginIp) {
+        this.lastLoginIp = lastLoginIp;
     }
 
     @Override

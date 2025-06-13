@@ -1,6 +1,6 @@
 # Biou Project
 
-基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成RBAC权限控制系统和完整的日志管理系统
+基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成JWT认证、钉钉登录、RBAC权限控制和完整的日志管理系统
 
 ## 项目特色
 
@@ -9,9 +9,12 @@
 - **禁止跨层调用**，保证架构清洁
 - **DTO数据传输**，不暴露ORM实现细节
 
-### 🔐 完整的RBAC权限系统
-- 用户-角色-权限三级模型
+### 🔐 完整的认证授权系统
+- JWT无状态认证机制
+- 钉钉OAuth2扫码登录集成
+- 用户-角色-权限三级RBAC模型
 - 支持权限继承和层级结构
+- BCrypt密码安全加密存储
 - 预置完整的权限数据和测试用户
 
 ### 📝 企业级日志管理
@@ -33,11 +36,14 @@
 
 ### 技术栈
 - **Spring Boot 2.7.18** - 主框架
+- **Spring Security** - 安全框架
 - **MySQL 8.0.33** - 数据库
 - **Redis** - 缓存
 - **MyBatis-Plus 3.5.3.1** - ORM框架
 - **Druid 1.2.20** - 数据库连接池
 - **FastJSON2 2.0.43** - JSON处理
+- **JJWT 0.11.5** - JWT处理
+- **HttpClient 4.5.14** - HTTP客户端
 
 ### 四层架构设计
 ```
@@ -100,6 +106,61 @@ Repository层采用**收敛设计**，提供标准化的数据访问接口，完
 - **静态方法设计** - 避免Spring Bean管理的复杂性
 - **类型安全** - 编译期保证转换的正确性
 
+## 认证授权系统
+
+### JWT认证机制
+采用无状态JWT认证，支持访问令牌和刷新令牌双重机制：
+
+**JWT配置特性：**
+- **访问令牌(Access Token)** - 默认24小时有效期
+- **刷新令牌(Refresh Token)** - 默认7天有效期
+- **令牌黑名单** - Redis存储已注销令牌，防止令牌重用
+- **HMAC-SHA256签名** - 使用强密钥确保令牌安全性
+- **自动刷新机制** - 临近过期时自动刷新访问令牌
+
+### 钉钉OAuth2集成
+集成钉钉企业级扫码登录，支持企业用户快速认证：
+
+**钉钉登录特性：**
+- **授权码模式** - 标准OAuth2授权码流程
+- **CSRF防护** - 使用state参数防止跨站请求伪造
+- **自动用户创建** - 首次登录自动创建系统用户
+- **用户信息同步** - 同步钉钉用户基本信息
+- **登录状态管理** - 与JWT认证系统无缝集成
+
+**环境配置：**
+```yaml
+dingtalk:
+  app-id: ${DINGTALK_APP_ID}      # 钉钉应用ID
+  app-secret: ${DINGTALK_APP_SECRET}  # 钉钉应用密钥
+  redirect-uri: ${DINGTALK_REDIRECT_URI}  # 登录回调地址
+```
+
+### 密码安全策略
+采用BCrypt算法进行密码加密存储：
+
+**安全特性：**
+- **BCrypt加密** - 自适应哈希算法，防止彩虹表攻击
+- **盐值随机** - 每个密码使用独特的盐值
+- **强度可配置** - 默认强度为10，可根据需要调整
+- **密码升级** - 提供数据库升级脚本迁移明文密码
+
+**预置测试账户：**
+| 用户名 | 密码 | 角色 | 说明 |
+|--------|------|------|------|
+| admin | admin123 | 管理员 | 系统管理员账户 |
+| test | test123 | 测试用户 | 普通测试账户 |
+
+### 安全拦截机制
+基于Spring Security的多层安全防护：
+
+**拦截特性：**
+- **JWT过滤器** - 自动验证和解析JWT令牌
+- **权限验证** - 基于RBAC模型的细粒度权限控制
+- **会话管理** - 无状态会话，避免CSRF攻击
+- **异常处理** - 统一的认证授权异常处理
+- **白名单机制** - 支持接口白名单配置
+
 ## RBAC权限控制系统
 
 ### 权限模型
@@ -153,13 +214,19 @@ Repository层采用**收敛设计**，提供标准化的数据访问接口，完
 ```
 
 ### 预置测试用户
-| 用户名 | 密码 | 角色 | 权限范围 |
-|--------|------|------|----------|
-| admin | 123456 | ADMIN | 全部权限 |
-| user1 | 123456 | USER_MANAGER | 用户管理权限 |
-| user2 | 123456 | OPERATOR | 业务操作权限 |
-| user3 | 123456 | GUEST | 查看权限 |
-| user4 | 123456 | GUEST | 查看权限 |
+| 用户名 | 密码 | 角色 | 权限范围 | 登录方式 |
+|--------|------|------|----------|----------|
+| admin | admin123 | ADMIN | 全部权限 | 用户名密码/钉钉 |
+| test | test123 | 测试用户 | 基础权限 | 用户名密码/钉钉 |
+| user1 | 123456 | USER_MANAGER | 用户管理权限 | 用户名密码 |
+| user2 | 123456 | OPERATOR | 业务操作权限 | 用户名密码 |
+| user3 | 123456 | GUEST | 查看权限 | 用户名密码 |
+| user4 | 123456 | GUEST | 查看权限 | 用户名密码 |
+
+**注意：** 
+- `admin`和`test`用户使用BCrypt加密密码，支持安全登录
+- 其他用户仍使用明文密码，建议运行升级脚本进行密码加密
+- 钉钉登录用户会自动创建，用户名格式为`dingtalk_xxx`
 
 ## 日志管理系统
 
@@ -369,8 +436,14 @@ src/
 │   ├── java/
 │   │   ├── com/biou/project/       # 原有项目包
 │   │   │   ├── controller/         # 控制器层
+│   │   │   │   ├── UserController.java    # 用户管理控制器
+│   │   │   │   └── AuthController.java    # 认证控制器
 │   │   │   ├── service/            # 服务层
+│   │   │   │   ├── UserService.java       # 用户服务接口
+│   │   │   │   ├── AuthService.java       # 认证服务接口
 │   │   │   │   └── impl/          # 服务实现层
+│   │   │   │       ├── UserServiceImpl.java   # 用户服务实现
+│   │   │   │       └── AuthServiceImpl.java   # 认证服务实现
 │   │   │   ├── repository/        # 仓储层
 │   │   │   │   └── impl/          # 仓储实现层
 │   │   │   ├── mapper/            # 映射器层
@@ -385,14 +458,26 @@ src/
 │   │   │   │   ├── UserCreateDTO.java
 │   │   │   │   ├── RoleCreateDTO.java
 │   │   │   │   ├── PermissionCreateDTO.java
-│   │   │   │   └── RolePermissionDTO.java
+│   │   │   │   ├── RolePermissionDTO.java
+│   │   │   │   ├── LoginDTO.java          # 登录请求
+│   │   │   │   ├── DingTalkLoginDTO.java  # 钉钉登录请求
+│   │   │   │   └── TokenRefreshDTO.java   # Token刷新请求
 │   │   │   ├── vo/                # 视图对象
 │   │   │   │   ├── UserVO.java
 │   │   │   │   ├── RoleVO.java
-│   │   │   │   └── PermissionVO.java
+│   │   │   │   ├── PermissionVO.java
+│   │   │   │   ├── LoginVO.java           # 登录响应
+│   │   │   │   └── DingTalkLoginUrlVO.java # 钉钉登录URL响应
 │   │   │   ├── config/            # 配置类
+│   │   │   │   ├── MybatisPlusConfig.java
+│   │   │   │   ├── RedisConfig.java
+│   │   │   │   └── SecurityConfig.java    # Spring Security配置
+│   │   │   ├── filter/            # 过滤器
+│   │   │   │   └── JwtAuthenticationFilter.java # JWT认证过滤器
 │   │   │   ├── exception/         # 异常处理
 │   │   │   └── utils/             # 工具类
+│   │   │       ├── JwtUtils.java          # JWT工具类
+│   │   │       └── DingTalkUtils.java     # 钉钉API工具类
 │   │   └── com/biou/              # 日志系统包
 │   │       ├── controller/        # 日志控制器
 │   │       │   └── LogController.java
@@ -469,7 +554,8 @@ src/
 │   └── setup-git-hooks.bat        # Git钩子安装脚本(Windows)
 ├── .gitmessage                     # Git提交信息模板
 └── sql/                            # SQL脚本
-    └── init.sql                   # 数据库初始化脚本（包含RBAC表和数据）
+    ├── init.sql                   # 数据库初始化脚本（包含RBAC表和数据）
+    └── auth_upgrade.sql           # 认证功能升级脚本（添加认证字段和加密用户）
 ```
 
 ## 环境要求
@@ -491,6 +577,9 @@ cd biou_01
 ```bash
 # 创建数据库并导入SQL脚本（包含RBAC权限数据）
 mysql -u root -p < sql/init.sql
+
+# 升级数据库支持认证功能（添加认证相关字段和加密用户）
+mysql -u root -p biou_db < sql/auth_upgrade.sql
 ```
 
 ### 3. 修改配置
@@ -507,6 +596,17 @@ spring:
     host: localhost           # 修改Redis地址
     port: 6379               # 修改Redis端口
     password:                # 修改Redis密码（如果有）
+
+# 配置JWT和钉钉登录（可选）
+jwt:
+  secret: your-jwt-secret-key    # JWT密钥
+  expiration: 86400             # 访问令牌过期时间（秒）
+  refresh-expiration: 604800    # 刷新令牌过期时间（秒）
+
+dingtalk:
+  app-id: ${DINGTALK_APP_ID}          # 钉钉应用ID
+  app-secret: ${DINGTALK_APP_SECRET}  # 钉钉应用密钥
+  redirect-uri: ${DINGTALK_REDIRECT_URI}  # 钉钉回调地址
 ```
 
 ### 4. 启动Redis
@@ -526,21 +626,32 @@ mvn spring-boot:run
 
 ## API接口
 
+### 认证授权接口
+
+| 方法 | 路径 | 描述 | 认证要求 |
+|------|------|------|----------|
+| POST | `/api/auth/login` | 用户名密码登录 | 无 |
+| GET | `/api/auth/dingtalk/login-url` | 获取钉钉登录URL | 无 |
+| POST | `/api/auth/dingtalk/callback` | 钉钉登录回调 | 无 |
+| POST | `/api/auth/refresh` | 刷新访问令牌 | 无 |
+| POST | `/api/auth/logout` | 用户登出 | JWT |
+| GET | `/api/auth/validate` | 验证令牌有效性 | 无 |
+
 ### 用户管理接口
 
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| POST | `/api/user` | 创建用户 |
-| GET | `/api/user/{id}` | 根据ID查询用户 |
-| GET | `/api/user/username/{username}` | 根据用户名查询用户 |
-| GET | `/api/user/page` | 分页查询用户 |
-| GET | `/api/user/enabled` | 查询启用用户 |
-| PUT | `/api/user/{id}/status` | 更新用户状态 |
-| DELETE | `/api/user/{id}` | 删除用户 |
-| GET | `/api/user/statistics` | 用户统计 |
-| GET | `/api/user/check/username` | 检查用户名 |
-| GET | `/api/user/check/email` | 检查邮箱 |
-| GET | `/api/user/check/phone` | 检查手机号 |
+| 方法 | 路径 | 描述 | 认证要求 |
+|------|------|------|----------|
+| POST | `/api/user` | 创建用户 | JWT |
+| GET | `/api/user/{id}` | 根据ID查询用户 | JWT |
+| GET | `/api/user/username/{username}` | 根据用户名查询用户 | JWT |
+| GET | `/api/user/page` | 分页查询用户 | JWT |
+| GET | `/api/user/enabled` | 查询启用用户 | JWT |
+| PUT | `/api/user/{id}/status` | 更新用户状态 | JWT |
+| DELETE | `/api/user/{id}` | 删除用户 | JWT |
+| GET | `/api/user/statistics` | 用户统计 | JWT |
+| GET | `/api/user/check/username` | 检查用户名 | 无 |
+| GET | `/api/user/check/email` | 检查邮箱 | 无 |
+| GET | `/api/user/check/phone` | 检查手机号 | 无 |
 
 ### RBAC权限接口（待实现）
 
@@ -574,10 +685,36 @@ mvn spring-boot:run
 
 ### 示例请求
 
+#### 认证登录
+```bash
+# 用户名密码登录
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin123"
+  }'
+
+# 获取钉钉登录URL
+curl http://localhost:8080/api/auth/dingtalk/login-url
+
+# 刷新访问令牌
+curl -X POST http://localhost:8080/api/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "your-refresh-token"
+  }'
+
+# 用户登出
+curl -X POST http://localhost:8080/api/auth/logout \
+  -H "Authorization: Bearer your-access-token"
+```
+
 #### 创建用户
 ```bash
 curl -X POST http://localhost:8080/api/user \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-access-token" \
   -d '{
     "username": "testuser",
     "password": "123456",
@@ -588,12 +725,14 @@ curl -X POST http://localhost:8080/api/user \
 
 #### 查询用户
 ```bash
-curl http://localhost:8080/api/user/1
+curl http://localhost:8080/api/user/1 \
+  -H "Authorization: Bearer your-access-token"
 ```
 
 #### 分页查询
 ```bash
-curl "http://localhost:8080/api/user/page?current=1&size=10"
+curl "http://localhost:8080/api/user/page?current=1&size=10" \
+  -H "Authorization: Bearer your-access-token"
 ```
 
 #### 创建角色
@@ -631,9 +770,14 @@ curl -X POST http://localhost:8080/api/permission \
 CREATE TABLE `t_user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) NOT NULL COMMENT '用户名',
-  `password` varchar(100) NOT NULL COMMENT '密码',
+  `password` varchar(100) NOT NULL COMMENT '密码（BCrypt加密）',
   `email` varchar(100) NOT NULL COMMENT '邮箱',
   `phone` varchar(20) NOT NULL COMMENT '手机号',
+  `real_name` varchar(100) DEFAULT NULL COMMENT '真实姓名',
+  `dingtalk_user_id` varchar(100) DEFAULT NULL COMMENT '钉钉用户ID',
+  `dingtalk_union_id` varchar(100) DEFAULT NULL COMMENT '钉钉用户唯一标识',
+  `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
+  `last_login_ip` varchar(50) DEFAULT NULL COMMENT '最后登录IP',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态：0-禁用，1-启用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -641,7 +785,9 @@ CREATE TABLE `t_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_username` (`username`),
   UNIQUE KEY `uk_email` (`email`),
-  UNIQUE KEY `uk_phone` (`phone`)
+  UNIQUE KEY `uk_phone` (`phone`),
+  KEY `idx_dingtalk_union_id` (`dingtalk_union_id`),
+  KEY `idx_dingtalk_user_id` (`dingtalk_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 ```
 
