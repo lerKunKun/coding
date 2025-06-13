@@ -2,6 +2,37 @@
 
 基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成JWT认证、钉钉登录、RBAC权限控制和完整的日志管理系统
 
+## 🌍 跨平台支持
+
+本项目提供完整的跨平台开发支持，所有开发规范和工具都已针对不同操作系统进行优化：
+
+✅ **Windows** - 支持命令提示符、PowerShell、Git Bash  
+✅ **macOS** - 支持Terminal、Zsh、Bash  
+✅ **Linux** - 支持各种Shell环境  
+✅ **IDE集成** - 完美兼容VSCode、IntelliJ IDEA、GitHub Desktop等
+
+### 快速开始
+
+**Windows用户：**
+```cmd
+# 方式1：批处理脚本（推荐新手）
+scripts\setup-git-hooks.bat
+
+# 方式2：PowerShell脚本（推荐高级用户）
+.\scripts\setup-git-hooks.ps1
+
+# 方式3：Git Bash（推荐开发者）
+bash scripts/setup-git-hooks.sh
+```
+
+**Unix/Linux/macOS用户：**
+```bash
+# 一键安装Git钩子和环境配置
+./scripts/setup-git-hooks.sh
+```
+
+详细的Windows配置指南请参考：[docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md)
+
 ## 项目特色
 
 ### 🏗️ 严格的四层架构
@@ -22,6 +53,13 @@
 - 基于注解的自动日志记录
 - 完整的日志查询和统计功能
 
+### 🗄️ 生产级SQL管理
+- 版本化迁移脚本管理（按版本组织）
+- 自动SQL语法验证和规范检查
+- 完整的回滚脚本和安全检查机制
+- 跨平台Git Hooks自动验证
+- 企业级SQL开发规范和最佳实践
+
 ### 🚫 零Lombok依赖
 - 手写所有getter/setter/constructor方法
 - 代码可读性更强，调试更容易
@@ -31,6 +69,12 @@
 - 统一的异常处理机制
 - 标准化的API响应格式
 - 完善的参数校验
+
+### 🔧 完善的开发工具链
+- Git Hooks自动代码质量检查
+- 跨平台开发环境支持
+- 自动化测试和验证脚本
+- 详细的开发规范文档
 
 ## 技术架构
 
@@ -371,7 +415,7 @@ biou:
 
 本项目严格遵循Git提交规范，确保代码版本控制的规范性和可维护性。
 
-### 🔧 快速配置
+### 🔧 快速配置（跨平台支持）
 
 **Unix/Linux/MacOS:**
 ```bash
@@ -379,13 +423,35 @@ biou:
 ./scripts/setup-git-hooks.sh
 ```
 
+**Windows（三种安装方式）:**
+
+方式1：批处理脚本（推荐新手）
+```cmd
+scripts\setup-git-hooks.bat
+```
+
+方式2：PowerShell脚本（推荐高级用户）
+```powershell
+.\scripts\setup-git-hooks.ps1
+```
+
+方式3：Git Bash（推荐开发者）
+```bash
+bash scripts/setup-git-hooks.sh
+```
+
+### 🧪 验证安装
+
+**Unix/Linux/MacOS:**
+```bash
+# 运行测试验证
+./scripts/setup-git-hooks.sh
+```
+
 **Windows:**
 ```cmd
-# 方案1: 使用Git Bash（推荐）
-./scripts/setup-git-hooks.sh
-
-# 方案2: 使用Windows批处理
-scripts\setup-git-hooks.bat
+# 运行Windows专用测试
+scripts\test-git-hooks-windows.bat
 ```
 
 ### 📝 提交信息格式
@@ -417,16 +483,32 @@ Closes #123
 - `release/*` - 版本发布准备
 - `hotfix/*` - 紧急bug修复
 
-### 📋 提交前检查
-自动检查以下内容：
-- ✅ 提交信息格式规范
+### 📋 Git Hooks 自动检查
+
+**代码提交前检查：**
+- ✅ 提交信息格式规范（Conventional Commits）
 - ✅ 代码质量（禁止Lombok使用）
 - ✅ 架构层次（防止跨层调用）
 - ✅ 代码格式（行尾空格、Tab字符）
 - ✅ 敏感信息检查
 
+**SQL文件专项检查：**
+- ✅ SQL语法验证
+- ✅ 文件命名规范
+- ✅ 头部格式验证
+- ✅ 缺失回滚脚本警告
+
+### 🌍 跨平台兼容性
+
+✅ **Windows** (Command Prompt, PowerShell, Git Bash)  
+✅ **macOS** (Terminal, Zsh, Bash)  
+✅ **Linux** (Bash, Zsh, Fish)  
+✅ **IDE集成** (VSCode, IntelliJ, GitHub Desktop等)
+
 ### 📚 详细文档
-查看完整的Git规范文档：[docs/GIT_COMMIT_STANDARDS.md](docs/GIT_COMMIT_STANDARDS.md)
+- [Git提交规范文档](docs/GIT_COMMIT_STANDARDS.md) - 完整的Git规范说明
+- [SQL开发规范文档](docs/SQL_STANDARDS.md) - SQL文件编写和管理规范
+- [Windows环境配置](docs/WINDOWS_SETUP.md) - Windows系统专用配置指南
 
 ## 项目结构
 
@@ -542,20 +624,35 @@ src/
 ├── test/                           # 测试目录
 ├── docs/                           # 项目文档
 │   ├── GIT_COMMIT_STANDARDS.md    # Git提交规范
+│   ├── SQL_STANDARDS.md           # SQL开发规范
+│   ├── WINDOWS_SETUP.md           # Windows环境配置指南
 │   ├── CODING_STANDARDS.md        # 编写规范文档
 │   └── FEATURE_EXTENSION_GUIDE.md # 功能扩展指南
-├── hooks/                          # Git钩子脚本
-│   ├── pre-commit                  # 提交前检查脚本(Unix/Linux/Mac)
-│   ├── pre-commit.bat              # 提交前检查脚本(Windows)
-│   ├── commit-msg                  # 提交信息检查脚本(Unix/Linux/Mac)
-│   └── commit-msg.bat              # 提交信息检查脚本(Windows)
 ├── scripts/                        # 工具脚本
 │   ├── setup-git-hooks.sh         # Git钩子安装脚本(Unix/Linux/Mac)
-│   └── setup-git-hooks.bat        # Git钩子安装脚本(Windows)
+│   ├── setup-git-hooks.bat        # Git钩子安装脚本(Windows批处理)
+│   ├── setup-git-hooks.ps1        # Git钩子安装脚本(Windows PowerShell)
+│   └── test-git-hooks-windows.bat # Windows Git钩子测试脚本
 ├── .gitmessage                     # Git提交信息模板
-└── sql/                            # SQL脚本
-    ├── init.sql                   # 数据库初始化脚本（包含RBAC表和数据）
-    └── auth_upgrade.sql           # 认证功能升级脚本（添加认证字段和加密用户）
+└── sql/                            # SQL脚本（规范化目录结构）
+    ├── README.md                   # SQL目录使用说明
+    ├── migrations/                 # 数据库迁移脚本
+    │   ├── v1.0.0/                 # 版本1.0.0迁移脚本
+    │   │   ├── 001_create_database_and_tables.sql  # 创建数据库和表
+    │   │   └── 002_insert_initial_data.sql         # 插入初始数据
+    │   └── v1.1.0/                 # 版本1.1.0迁移脚本
+    │       └── 001_add_auth_fields.sql             # 添加认证字段
+    ├── rollback/                   # 回滚脚本
+    │   ├── rollback_v1.0.0_001_create_database_and_tables.sql
+    │   ├── rollback_v1.0.0_002_insert_initial_data.sql
+    │   └── rollback_v1.1.0_001_add_auth_fields.sql
+    ├── patches/                    # 补丁脚本
+    ├── procedures/                 # 存储过程
+    ├── functions/                  # 函数
+    ├── views/                      # 视图
+    └── templates/                  # SQL模板文件
+        ├── migration_template.sql  # 迁移脚本模板
+        └── rollback_template.sql   # 回滚脚本模板
 ```
 
 ## 环境要求
@@ -846,8 +943,31 @@ CREATE TABLE `t_permission` (
 本项目包含详细的开发规范和扩展指南：
 
 - **[Git提交规范](docs/GIT_COMMIT_STANDARDS.md)** - Git使用规范、提交信息格式、分支管理
+- **[SQL开发规范](docs/SQL_STANDARDS.md)** - SQL文件编写、管理规范、数据库迁移最佳实践
+- **[Windows环境配置](docs/WINDOWS_SETUP.md)** - Windows系统专用配置指南、故障排除
 - **[项目编写规范](docs/CODING_STANDARDS.md)** - 代码规范、架构规范、命名规范
 - **[新功能拓展规范](docs/FEATURE_EXTENSION_GUIDE.md)** - 功能扩展流程、最佳实践
+
+### 🚀 快速上手指南
+
+**新开发者推荐阅读顺序：**
+
+1. **[Windows环境配置](docs/WINDOWS_SETUP.md)** - Windows用户必读，包含完整的环境配置指南
+2. **[Git提交规范](docs/GIT_COMMIT_STANDARDS.md)** - 了解项目的Git工作流和提交规范
+3. **[SQL开发规范](docs/SQL_STANDARDS.md)** - 数据库开发和SQL脚本管理规范
+4. **[项目编写规范](docs/CODING_STANDARDS.md)** - 代码编写规范和架构原则
+5. **[新功能拓展规范](docs/FEATURE_EXTENSION_GUIDE.md)** - 功能开发和扩展指南
+
+### 🔧 开发工具配置
+
+**Git Hooks自动化:**
+- 自动检查代码质量和提交信息格式
+- 自动验证SQL文件语法和规范
+- 支持所有主流开发环境和IDE
+
+**跨平台兼容:**
+- Windows: `scripts\setup-git-hooks.bat` 或 `scripts\setup-git-hooks.ps1`
+- macOS/Linux: `./scripts/setup-git-hooks.sh`
 
 ## 🏗️ 架构优势
 
