@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
  * 用户登录请求DTO
  * 
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class LoginDTO {
 

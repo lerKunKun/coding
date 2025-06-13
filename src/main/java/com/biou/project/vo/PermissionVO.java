@@ -7,7 +7,7 @@ import java.util.List;
  * 权限VO
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class PermissionVO {
 

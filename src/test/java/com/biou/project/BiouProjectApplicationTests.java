@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * 项目测试类
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @SpringBootTest
 class BiouProjectApplicationTests {

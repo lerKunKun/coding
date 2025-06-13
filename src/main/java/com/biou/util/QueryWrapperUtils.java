@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  * 负责将DTO转换为MyBatis-Plus的QueryWrapper
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class QueryWrapperUtils {
 

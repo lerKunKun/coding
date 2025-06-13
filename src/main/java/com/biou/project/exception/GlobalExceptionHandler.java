@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * 全局异常处理器
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

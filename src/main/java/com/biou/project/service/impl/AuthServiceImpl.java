@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 认证服务实现类
  * 
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @Service
 public class AuthServiceImpl implements AuthService {

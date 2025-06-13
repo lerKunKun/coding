@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 统一响应结果类
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class Result<T> implements Serializable {
 

@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * JWT认证过滤器
  * 
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

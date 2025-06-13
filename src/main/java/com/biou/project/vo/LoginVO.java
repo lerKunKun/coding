@@ -4,7 +4,7 @@ package com.biou.project.vo;
  * 登录响应VO
  * 
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class LoginVO {
 

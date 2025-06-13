@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * 用户角色关联实体类
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @TableName("t_user_role")
 public class UserRole implements Serializable {

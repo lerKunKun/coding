@@ -11,7 +11,7 @@ import java.util.List;
  * 权限Mapper接口
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @Mapper
 public interface PermissionMapper extends BaseMapper<Permission> {

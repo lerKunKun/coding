@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * 密码编码器配置类
  * 
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @Configuration
 public class PasswordEncoderConfig {

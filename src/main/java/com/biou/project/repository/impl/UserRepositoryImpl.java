@@ -19,7 +19,7 @@ import java.util.List;
  * 用户Repository实现类
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 @Repository
 public class UserRepositoryImpl extends ServiceImpl<UserMapper, User> implements UserRepository {

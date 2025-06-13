@@ -4,7 +4,7 @@ package com.biou.project.exception;
  * 业务异常类
  *
  * @author Jax
- * @since 2024-01-01
+ * @since 2025-06-14
  */
 public class BusinessException extends RuntimeException {
 
