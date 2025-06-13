@@ -1,0 +1,81 @@
+# Git 分支管理规范
+
+## 主要分支
+
+### main
+- **用途**: 生产环境代码
+- **说明**: 保存稳定的生产版本代码，只接受来自 `hotfix/*` 和 `release/*` 分支的合并
+- **保护**: 应设置分支保护规则，禁止直接推送
+
+### develop  
+- **用途**: 开发主分支
+- **说明**: 集成所有新功能的开发分支，是功能开发的基础分支
+- **来源**: 接受来自 `feature/*` 分支的合并请求
+
+## 辅助分支
+
+### feature/*
+- **用途**: 新功能开发
+- **命名规范**: `feature/功能名称` 或 `feature/issue-编号`
+- **示例**: `feature/user-authentication`, `feature/issue-123`
+- **生命周期**: 从 `develop` 分支创建，完成后合并回 `develop` 分支并删除
+- **工作流程**:
+  ```bash
+  git checkout develop
+  git pull origin develop
+  git checkout -b feature/new-feature
+  # 开发完成后
+  git push origin feature/new-feature
+  # 创建 PR/MR 合并到 develop
+  ```
+
+### release/*
+- **用途**: 版本发布准备
+- **命名规范**: `release/版本号`
+- **示例**: `release/v1.2.0`, `release/2024.01`
+- **生命周期**: 从 `develop` 分支创建，完成后合并到 `main` 和 `develop` 分支
+- **工作流程**:
+  ```bash
+  git checkout develop
+  git pull origin develop
+  git checkout -b release/v1.2.0
+  # 版本准备、测试、bug修复
+  git push origin release/v1.2.0
+  # 合并到 main 和 develop
+  ```
+
+### hotfix/*
+- **用途**: 紧急bug修复
+- **命名规范**: `hotfix/问题描述` 或 `hotfix/bug-编号`
+- **示例**: `hotfix/critical-security-fix`, `hotfix/bug-456`
+- **生命周期**: 从 `main` 分支创建，完成后合并到 `main` 和 `develop` 分支
+- **工作流程**:
+  ```bash
+  git checkout main
+  git pull origin main
+  git checkout -b hotfix/critical-fix
+  # 修复完成后
+  git push origin hotfix/critical-fix
+  # 合并到 main 和 develop
+  ```
+
+## 分支保护建议
+
+1. **main 分支**: 
+   - 启用分支保护
+   - 要求 PR 审核
+   - 禁止强制推送
+   - 要求状态检查通过
+
+2. **develop 分支**:
+   - 启用分支保护  
+   - 要求 PR 审核
+   - 要求状态检查通过
+
+## 工作流程总结
+
+1. 日常开发使用 `feature/*` 分支
+2. 准备发布使用 `release/*` 分支
+3. 紧急修复使用 `hotfix/*` 分支
+4. `main` 分支始终保持生产就绪状态
+5. `develop` 分支包含最新的开发进展 

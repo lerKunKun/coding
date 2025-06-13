@@ -1,3 +1,20 @@
+/*
+================================================================================
+脚本名称: 001_create_database_and_tables.sql
+创建时间: 2024-12-01
+创建人员: 系统初始化
+变更描述: 初始化biou系统数据库，创建用户、角色、权限、日志等核心表结构
+关联需求: 系统初始化
+影响范围: 整个数据库结构
+执行环境: 开发/测试/生产
+预计耗时: 2-3分钟
+注意事项: 首次部署时执行，会删除现有表重新创建
+================================================================================
+*/
+
+-- 检查数据库版本和环境
+SELECT VERSION() as mysql_version;
+
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS `biou_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
@@ -173,94 +190,9 @@ CREATE TABLE `t_login_log` (
   KEY `idx_login_time` (`login_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
--- 插入测试数据
-
--- 插入用户数据
-INSERT INTO `t_user` (`username`, `password`, `email`, `phone`, `status`) VALUES
-('admin', '123456', 'admin@biou.com', '13800138000', 1),
-('user1', '123456', 'user1@biou.com', '13800138001', 1),
-('user2', '123456', 'user2@biou.com', '13800138002', 1),
-('user3', '123456', 'user3@biou.com', '13800138003', 0),
-('user4', '123456', 'user4@biou.com', '13800138004', 1);
-
--- 插入角色数据
-INSERT INTO `t_role` (`role_code`, `role_name`, `description`, `status`) VALUES
-('ADMIN', '系统管理员', '拥有系统全部权限', 1),
-('USER_MANAGER', '用户管理员', '负责用户管理相关功能', 1),
-('GUEST', '访客', '只有基本的查看权限', 1),
-('OPERATOR', '操作员', '负责日常业务操作', 1);
-
--- 插入权限数据
-INSERT INTO `t_permission` (`permission_code`, `permission_name`, `resource_type`, `resource_path`, `parent_id`, `sort_order`, `description`, `status`) VALUES
--- 系统管理
-('SYSTEM', '系统管理', 'menu', '/system', 0, 100, '系统管理模块', 1),
-('SYSTEM:USER', '用户管理', 'menu', '/system/user', 1, 110, '用户管理菜单', 1),
-('SYSTEM:USER:LIST', '用户列表', 'api', '/api/user/page', 2, 111, '查看用户列表', 1),
-('SYSTEM:USER:CREATE', '创建用户', 'api', '/api/user', 2, 112, '创建新用户', 1),
-('SYSTEM:USER:UPDATE', '更新用户', 'api', '/api/user/*', 2, 113, '更新用户信息', 1),
-('SYSTEM:USER:DELETE', '删除用户', 'api', '/api/user/*', 2, 114, '删除用户', 1),
-('SYSTEM:USER:STATUS', '用户状态', 'api', '/api/user/*/status', 2, 115, '修改用户状态', 1),
-
--- 角色管理
-('SYSTEM:ROLE', '角色管理', 'menu', '/system/role', 1, 120, '角色管理菜单', 1),
-('SYSTEM:ROLE:LIST', '角色列表', 'api', '/api/role/page', 8, 121, '查看角色列表', 1),
-('SYSTEM:ROLE:CREATE', '创建角色', 'api', '/api/role', 8, 122, '创建新角色', 1),
-('SYSTEM:ROLE:UPDATE', '更新角色', 'api', '/api/role/*', 8, 123, '更新角色信息', 1),
-('SYSTEM:ROLE:DELETE', '删除角色', 'api', '/api/role/*', 8, 124, '删除角色', 1),
-('SYSTEM:ROLE:ASSIGN', '分配权限', 'api', '/api/role/*/permissions', 8, 125, '为角色分配权限', 1),
-
--- 权限管理
-('SYSTEM:PERMISSION', '权限管理', 'menu', '/system/permission', 1, 130, '权限管理菜单', 1),
-('SYSTEM:PERMISSION:LIST', '权限列表', 'api', '/api/permission/list', 14, 131, '查看权限列表', 1),
-('SYSTEM:PERMISSION:CREATE', '创建权限', 'api', '/api/permission', 14, 132, '创建新权限', 1),
-('SYSTEM:PERMISSION:UPDATE', '更新权限', 'api', '/api/permission/*', 14, 133, '更新权限信息', 1),
-('SYSTEM:PERMISSION:DELETE', '删除权限', 'api', '/api/permission/*', 14, 134, '删除权限', 1),
-
--- 日志管理
-('SYSTEM:LOG', '日志管理', 'menu', '/system/log', 1, 140, '日志管理菜单', 1),
-('SYSTEM:LOG:AUDIT', '审计日志', 'api', '/api/log/audit/*', 19, 141, '查看审计日志', 1),
-('SYSTEM:LOG:SYSTEM', '系统日志', 'api', '/api/log/system/*', 19, 142, '查看系统日志', 1),
-('SYSTEM:LOG:LOGIN', '登录日志', 'api', '/api/log/login/*', 19, 143, '查看登录日志', 1),
-('SYSTEM:LOG:CLEAN', '清理日志', 'api', '/api/log/clean', 19, 144, '清理过期日志', 1),
-
--- 业务模块
-('BUSINESS', '业务管理', 'menu', '/business', 0, 200, '业务管理模块', 1),
-('BUSINESS:VIEW', '业务查看', 'api', '/api/business/*', 23, 210, '查看业务数据', 1),
-('BUSINESS:OPERATE', '业务操作', 'api', '/api/business/operate/*', 23, 220, '执行业务操作', 1);
-
--- 插入用户角色关联数据
-INSERT INTO `t_user_role` (`user_id`, `role_id`, `create_by`) VALUES
-(1, 1, 1),  -- admin 用户分配 ADMIN 角色
-(2, 2, 1),  -- user1 用户分配 USER_MANAGER 角色
-(3, 4, 1),  -- user2 用户分配 OPERATOR 角色
-(4, 3, 1),  -- user3 用户分配 GUEST 角色
-(5, 3, 1);  -- user4 用户分配 GUEST 角色
-
--- 插入角色权限关联数据
--- ADMIN 角色拥有所有权限
-INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`)
-SELECT 1, id, 1 FROM `t_permission`;
-
--- USER_MANAGER 角色拥有用户管理相关权限
-INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`) VALUES
-(2, 1, 1),   -- SYSTEM
-(2, 2, 1),   -- SYSTEM:USER
-(2, 3, 1),   -- SYSTEM:USER:LIST
-(2, 4, 1),   -- SYSTEM:USER:CREATE
-(2, 5, 1),   -- SYSTEM:USER:UPDATE
-(2, 6, 1),   -- SYSTEM:USER:DELETE
-(2, 7, 1);   -- SYSTEM:USER:STATUS
-
--- GUEST 角色只有查看权限
-INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`) VALUES
-(3, 1, 1),   -- SYSTEM
-(3, 2, 1),   -- SYSTEM:USER
-(3, 3, 1),   -- SYSTEM:USER:LIST
-(3, 23, 1),  -- BUSINESS
-(3, 24, 1);  -- BUSINESS:VIEW
-
--- OPERATOR 角色有业务操作权限
-INSERT INTO `t_role_permission` (`role_id`, `permission_id`, `create_by`) VALUES
-(4, 23, 1),  -- BUSINESS
-(4, 24, 1),  -- BUSINESS:VIEW
-(4, 25, 1);  -- BUSINESS:OPERATE
+/*
+================================================================================
+数据库结构创建完成
+下一步执行：002_insert_initial_data.sql 插入基础数据
+================================================================================
+*/ 
