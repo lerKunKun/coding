@@ -1,6 +1,54 @@
 # Biou Project
 
-基于Spring Boot + MySQL + Redis + MyBatis-Plus的四层架构项目，集成JWT认证、钉钉登录、RBAC权限控制和完整的日志管理系统
+基于Spring Boot + MySQL + Redis + MyBatis-Plus的全栈四层架构项目，集成JWT认证、钉钉登录、RBAC权限控制、完整的日志管理系统和现代化前端UI界面
+
+## 🌟 V1.1.0 新特性
+
+### 🎨 全新前端UI系统
+- **现代化界面**: 基于React 19.0 + TypeScript + Ant Design构建的管理后台
+- **响应式设计**: 完美适配桌面端、平板和移动设备
+- **用户友好**: 直观的操作界面和流畅的交互体验
+- **组件化开发**: 严格遵循前端开发规范，组件可复用性强
+
+### 🔐 增强的安全配置
+- **CORS支持**: 优化的跨域资源共享配置
+- **前后端分离**: 标准的RESTful API + 独立前端应用架构
+- **统一认证**: JWT令牌在前后端系统中无缝集成
+
+### 📊 完整的管理界面
+- **登录系统**: 美观的登录界面，支持用户名密码认证
+- **仪表盘**: 实时数据展示和系统概览
+- **日志管理**: 完整的审计日志查询和分析功能
+- **用户管理**: 直观的用户权限管理界面（规划中）
+
+## 🏗️ 项目架构
+
+### 后端架构 (Spring Boot)
+```
+Controller ← Service ← Repository ← Mapper
+     ↓           ↓          ↓
+   JWT认证   业务逻辑   数据访问层
+```
+
+### 前端架构 (React)
+```
+Pages ← Components ← Services ← Utils
+  ↓        ↓          ↓
+布局页面  UI组件   API调用
+```
+
+### 系统架构图
+```
+┌─────────────────┐    ┌─────────────────┐
+│   前端UI (React) │ ←→ │  后端API (Spring)│
+│   Port: 3000    │    │   Port: 8080    │
+└─────────────────┘    └─────────────────┘
+                              ↓
+        ┌─────────────────┐  ┌─────────────────┐
+        │  MySQL 8.0+     │  │   Redis 6.0+    │
+        │  (主数据库)      │  │   (缓存/会话)    │
+        └─────────────────┘  └─────────────────┘
+```
 
 ## 🌍 跨平台支持
 
@@ -78,7 +126,7 @@ bash scripts/setup-git-hooks.sh
 
 ## 技术架构
 
-### 技术栈
+### 后端技术栈
 - **Spring Boot 2.7.18** - 主框架
 - **Spring Security** - 安全框架
 - **MySQL 8.0.33** - 数据库
@@ -88,6 +136,16 @@ bash scripts/setup-git-hooks.sh
 - **FastJSON2 2.0.43** - JSON处理
 - **JJWT 0.11.5** - JWT处理
 - **HttpClient 4.5.14** - HTTP客户端
+
+### 前端技术栈
+- **React 19.1.0** - 前端框架
+- **TypeScript 4.9.5** - 类型安全
+- **Ant Design 5.26.0** - UI组件库
+- **React Router DOM 7.6.2** - 路由管理
+- **Axios 1.10.0** - HTTP客户端
+- **Styled Components** - CSS-in-JS
+- **Day.js 1.11.13** - 日期处理
+- **CRACO** - 构建配置
 
 ### 四层架构设计
 ```
@@ -512,11 +570,60 @@ Closes #123
 
 ## 项目结构
 
+### 🎯 总体结构
+```
+biou_01/                        # 项目根目录
+├── src/                        # 后端源码目录
+├── biou_ui/                    # 前端UI目录
+├── sql/                        # 数据库脚本
+├── docs/                       # 项目文档
+├── scripts/                    # 工具脚本
+└── pom.xml                     # Maven配置文件
+```
+
+### 🖥️ 前端结构 (biou_ui/)
+```
+biou_ui/
+├── public/                     # 静态文件
+│   ├── index.html             # HTML模板
+│   └── favicon.ico            # 网站图标
+├── src/                       # 源码目录
+│   ├── components/            # 组件目录
+│   │   └── layout/           # 布局组件
+│   │       └── MainLayout.tsx # 主布局
+│   ├── pages/                # 页面目录
+│   │   ├── login/            # 登录页面
+│   │   │   └── index.tsx     # 登录组件
+│   │   └── dashboard/        # 仪表盘
+│   │       ├── index.tsx     # 仪表盘主页
+│   │       └── Statistics.tsx # 统计组件
+│   ├── services/             # API服务层
+│   │   └── api.ts           # API接口定义
+│   ├── utils/               # 工具函数
+│   │   ├── request.ts       # HTTP请求工具
+│   │   └── index.ts         # 通用工具
+│   ├── types/               # TypeScript类型
+│   │   └── api.ts          # API类型定义
+│   ├── constants/           # 常量定义
+│   │   └── index.ts        # 系统常量
+│   ├── assets/              # 静态资源
+│   │   └── styles/         # 样式文件
+│   │       └── global.css  # 全局样式
+│   ├── App.tsx             # 应用主组件
+│   ├── index.tsx           # 应用入口
+│   └── index.css           # 入口样式
+├── package.json            # NPM配置
+├── tsconfig.json          # TypeScript配置
+├── craco.config.js        # CRACO配置
+└── README.md              # 前端文档
+```
+
+### 🔧 后端结构 (src/)
 ```
 src/
 ├── main/
 │   ├── java/
-│   │   ├── com/biou/project/       # 原有项目包
+│   │   ├── com/biou/project/       # 主项目包
 │   │   │   ├── controller/         # 控制器层
 │   │   │   │   ├── UserController.java    # 用户管理控制器
 │   │   │   │   └── AuthController.java    # 认证控制器
@@ -657,30 +764,36 @@ src/
 
 ## 环境要求
 
+### 后端环境
 - **JDK 8+**
 - **Maven 3.6+**
 - **MySQL 8.0+**
 - **Redis 6.0+**
 
+### 前端环境
+- **Node.js 16.0+**
+- **npm 8.0+** (或 yarn 1.22+)
+
 ## 快速开始
 
-### 1. 克隆项目
+### 🚀 方式一：完整运行（推荐）
+
+#### 1. 克隆项目
 ```bash
 git clone <repository-url>
 cd biou_01
 ```
 
-### 2. 配置数据库
+#### 2. 配置数据库
 ```bash
 # 创建数据库并导入SQL脚本（包含RBAC权限数据）
-mysql -u root -p < sql/init.sql
-
-# 升级数据库支持认证功能（添加认证相关字段和加密用户）
-mysql -u root -p biou_db < sql/auth_upgrade.sql
+mysql -u root -p < sql/migrations/v1.0.0/001_create_database_and_tables.sql
+mysql -u root -p < sql/migrations/v1.0.0/002_insert_initial_data.sql
+mysql -u root -p < sql/migrations/v1.1.0/001_add_auth_fields.sql
 ```
 
-### 3. 修改配置
-编辑 `src/main/resources/application.yml`，修改数据库和Redis连接信息：
+#### 3. 修改后端配置
+编辑 `src/main/resources/application.yml`：
 
 ```yaml
 spring:
@@ -699,27 +812,44 @@ jwt:
   secret: your-jwt-secret-key    # JWT密钥
   expiration: 86400             # 访问令牌过期时间（秒）
   refresh-expiration: 604800    # 刷新令牌过期时间（秒）
-
-dingtalk:
-  app-id: ${DINGTALK_APP_ID}          # 钉钉应用ID
-  app-secret: ${DINGTALK_APP_SECRET}  # 钉钉应用密钥
-  redirect-uri: ${DINGTALK_REDIRECT_URI}  # 钉钉回调地址
 ```
 
-### 4. 启动Redis
+#### 4. 启动Redis
 ```bash
 redis-server
 ```
 
-### 5. 启动项目
+#### 5. 启动后端API服务
 ```bash
 mvn spring-boot:run
 ```
+后端服务将运行在：`http://localhost:8080`
 
-### 6. 测试接口
-项目启动后，可以使用以下方式测试接口：
+#### 6. 安装前端依赖并启动
+```bash
+cd biou_ui
+npm install
+npm start
+```
+前端界面将运行在：`http://localhost:3000`
+
+#### 7. 访问系统
+打开浏览器访问：`http://localhost:3000`
+
+**默认登录账号：**
+- 用户名：`admin`
+- 密码：`admin123`
+
+### 🔧 方式二：仅后端API运行
+
+如果您只需要测试后端API，可以跳过前端安装步骤：
+
+#### 1-5. 按照上述步骤配置并启动后端
+
+#### 6. 测试API接口
 - 使用Postman或curl工具调用API
-- 项目基础路径：`http://localhost:8080/api`
+- API基础路径：`http://localhost:8080/api`
+- API文档：`http://localhost:8080/doc.html` (如果已集成Swagger)
 
 ## API接口
 
@@ -924,15 +1054,52 @@ CREATE TABLE `t_permission` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 ```
 
+## 🎨 前端UI特性
+
+### 🌟 界面特色
+- **现代化设计**: 采用Ant Design设计语言，界面简洁美观
+- **响应式布局**: 完美适配PC、平板、手机等各种设备
+- **主题定制**: 支持自定义主题色彩和样式
+- **国际化**: 预留多语言支持接口
+
+### 📱 用户体验
+- **快速加载**: 使用React 19最新特性，组件渲染性能优异
+- **流畅交互**: 丰富的动画效果和交互反馈
+- **智能搜索**: 支持模糊搜索和高级筛选
+- **数据可视化**: 图表展示系统运行状态
+
+### 🔐 安全特性
+- **JWT认证**: 前后端统一的身份认证机制
+- **权限控制**: 基于用户角色的页面和功能访问控制
+- **敏感数据**: 自动遮罩敏感信息显示
+- **安全存储**: 本地存储加密处理
+
+### 🚀 技术亮点
+- **TypeScript**: 全面的类型安全保障
+- **组件化**: 高度可复用的组件架构
+- **状态管理**: 基于React Hooks的状态管理
+- **API集成**: 完整的RESTful API调用封装
+
 ## 🔧 系统监控
 
-### Druid数据库监控
-- **访问地址**: `http://localhost:8080/api/druid`
-- **用户名**: admin
-- **密码**: 123456
-- **监控内容**: 数据库连接池状态、SQL执行统计、慢SQL分析
+### 前端监控
+- **访问地址**: `http://localhost:3000`
+- **登录界面**: 美观的用户认证页面
+- **仪表盘**: 实时系统数据展示
+- **日志管理**: 完整的日志查询和分析界面
 
-### 系统日志监控
+### 后端监控
+- **API服务**: `http://localhost:8080/api`
+- **Druid监控**: `http://localhost:8080/api/druid` (admin/123456)
+- **健康检查**: `http://localhost:8080/actuator/health`
+- **系统信息**: `http://localhost:8080/actuator/info`
+
+### 数据库监控
+- **连接池**: Druid数据库连接池状态监控
+- **SQL统计**: SQL执行统计和慢SQL分析
+- **性能指标**: 数据库性能指标监控
+
+### 日志监控
 - **审计日志**: 记录所有用户操作行为
 - **系统日志**: 记录应用运行状态和错误信息
 - **登录日志**: 记录用户登录/登出情况
@@ -1012,6 +1179,32 @@ CREATE TABLE `t_permission` (
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
+## 📋 版本信息
+
+### 🚀 V1.1.0 (当前版本) - 2024-06-15
+**全栈架构升级**
+- ✅ 新增完整的React前端UI系统
+- ✅ 优化Spring Security CORS配置
+- ✅ 完善前后端分离架构
+- ✅ 升级用户认证和权限管理界面
+- ✅ 新增响应式设计和现代化UI组件
+
+### 📝 V1.0.0 - 2024-06-14
+**基础功能完成**
+- ✅ 四层架构Spring Boot后端系统
+- ✅ JWT认证和钉钉登录集成
+- ✅ RBAC权限控制系统
+- ✅ 完整的日志管理体系
+- ✅ 跨平台Git Hooks工具链
+- ✅ 企业级SQL管理规范
+
+### 🔮 下一版本规划 (V1.2.0)
+- 🔄 用户权限管理UI界面
+- 🔄 系统日志和登录日志管理页面
+- 🔄 数据统计和图表展示
+- 🔄 多语言国际化支持
+- 🔄 移动端适配优化
+
 ## 📞 技术支持
 
 如有问题，请通过以下方式联系：
@@ -1019,9 +1212,31 @@ CREATE TABLE `t_permission` (
 - 🐛 **Bug报告**: [GitHub Issues](https://github.com/your-repo/issues)
 - 💡 **功能建议**: [GitHub Discussions](https://github.com/your-repo/discussions)
 - 📧 **邮件咨询**: zhurunfeng3226@gmail.com
+- 📖 **技术文档**: 查看`docs/`目录下的详细文档
+
+### 💡 快速上手建议
+1. **新用户**: 建议先阅读[Windows环境配置](docs/WINDOWS_SETUP.md)（Windows用户）
+2. **开发者**: 重点关注[项目编写规范](docs/CODING_STANDARDS.md)和[功能扩展指南](docs/FEATURE_EXTENSION_GUIDE.md)
+3. **运维人员**: 参考[SQL开发规范](docs/SQL_STANDARDS.md)了解数据库管理规范
 
 ---
 
-⭐ 如果这个项目对你有帮助，请给它一个星标！ 
-## 许可证
-MIT License
+### 🌟 项目特色
+
+🎯 **生产就绪**: 企业级代码质量和架构设计  
+🔒 **安全可靠**: 完整的认证授权和审计体系  
+📱 **现代化UI**: 基于最新前端技术栈构建  
+🌍 **跨平台**: 支持所有主流开发环境  
+📚 **文档完善**: 详细的开发规范和指南  
+🚀 **易于扩展**: 清晰的架构层次和标准化接口  
+
+⭐ **如果这个项目对你有帮助，请给它一个星标！**
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+---
+**开发团队**: BIOU Project Team  
+**当前版本**: V1.1.0  
+**最后更新**: 2024年6月15日
