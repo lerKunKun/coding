@@ -69,8 +69,8 @@ mysql -h host -u user -p database < rollback/rollback_v1.1.0_001_add_auth_fields
 - **新增索引**: 钉钉相关字段索引
 - **密码加密**: 升级为BCrypt加密格式
 - **默认账户**: 
-  - 管理员：admin/admin123
-  - 测试用户：test/test123
+  - 管理员：admin/password
+  - 测试用户：test/password
 
 ## 使用注意事项
 
